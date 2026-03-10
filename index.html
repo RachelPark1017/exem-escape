@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXEM 사무실 탈출 — 핵심가치 방탈출 게임</title>
+<style>
+  @font-face {
+    font-family: 'Unica 77 LL';
+    src: url('Unica77LLTT-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Unica 77 LL';
+    src: url('Unica77LLTT-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+  }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #22223b;
+    --border: #333355;
+    --blue: #40E2FF;
+    --blue-light: #73EEFF;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --white: #ffffff;
+  }
+
+  body {
+    font-family: 'Pretendard', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── INTRO SCREEN ── */
+  #intro {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 30%, rgba(30,42,74,0.55) 0%, rgba(15,15,26,0.45) 70%);
+  }
+
+  .intro-logo {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 0.3em;
+    color: var(--white);
+    text-shadow: 0 0 30px rgba(64,226,255,0.8);
+    margin-bottom: 0.5rem;
+  }
+
+  .intro-sub {
+    font-size: 0.95rem;
+    letter-spacing: 0.2em;
+    color: var(--blue-light);
+    margin-bottom: 3rem;
+  }
+
+  .intro-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .intro-story {
+    max-width: 560px;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .intro-story em {
+    color: var(--text);
+    font-style: normal;
+  }
+
+  .stage-list {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stage-badge {
+    background: rgba(64,226,255,0.15);
+    border: 1px solid var(--blue);
+    border-radius: 20px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    color: var(--blue-light);
+  }
+
+  .btn-start {
+    background: var(--blue);
+    color: #0a0a1a;
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(64,226,255,0.4);
+    letter-spacing: 0.05em;
+  }
+
+  .btn-start:hover {
+    background: var(--blue-light);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(64,226,255,0.6);
+  }
+
+  /* ── GAME SCREEN ── */
+  #game {
+    display: none;
+    width: 100%;
+    max-width: 680px;
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 4rem;
+  }
+
+  /* Header */
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: sticky;
+    top: 0.5rem;
+    z-index: 10;
+  }
+
+  .timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timer-wrap.warning { color: var(--gold); }
+  .timer-wrap.danger { color: var(--red); animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .stage-dots {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+
+  .dot.done { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot.active { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+  /* Room card */
+  .room-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .room-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(64,226,255,0.08);
+  }
+
+  .room-icon { font-size: 1.8rem; }
+
+  .room-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .room-location {
+    font-size: 0.8rem;
+    color: var(--blue-light);
+    margin-top: 0.1rem;
+  }
+
+  .room-story {
+    padding: 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--muted);
+    white-space: pre-line;
+  }
+
+  .hint-box {
+    margin: 0 1.25rem 1.25rem;
+    padding: 0.6rem 0.9rem;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--gold);
+  }
+
+  /* Quiz card */
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+
+  .quiz-progress {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .quiz-progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .quiz-progress-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 2px;
+    transition: width 0.4s;
+  }
+
+  .quiz-type-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .badge-ox { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-choice { background: rgba(64,226,255,0.15); color: var(--blue-light); border: 1px solid rgba(64,226,255,0.3); }
+  .badge-fill { background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-scenario { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+
+  .quiz-question {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+    white-space: pre-line;
+  }
+
+  /* OX buttons */
+  .ox-buttons {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .ox-btn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: transparent;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+
+  .ox-btn:hover:not(:disabled) { border-color: var(--blue); transform: scale(1.03); }
+  .ox-btn.selected-correct { border-color: var(--green); background: rgba(16,185,129,0.12); }
+  .ox-btn.selected-wrong { border-color: var(--red); background: rgba(239,68,68,0.12); }
+  .ox-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+
+  /* Choice options */
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .option-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    color: var(--text);
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.5;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: rgba(64,226,255,0.08);
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(16,185,129,0.12);
+    color: #6ee7b7;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.12);
+    color: #fca5a5;
+  }
+
+  .option-btn:disabled { cursor: not-allowed; }
+
+  /* Fill input */
+  .fill-wrap {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .fill-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--white);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .fill-input:focus { border-color: var(--blue); }
+  .fill-input.correct { border-color: var(--green); background: rgba(16,185,129,0.08); }
+  .fill-input.wrong { border-color: var(--red); background: rgba(239,68,68,0.08); }
+
+  .btn-submit {
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: #0a0a1a;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-submit:hover:not(:disabled) { background: var(--blue-light); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .feedback.correct {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: #6ee7b7;
+    display: block;
+  }
+
+  .feedback.wrong {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5;
+    display: block;
+  }
+
+  .btn-next {
+    display: none;
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: #0a0a1a;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-next:hover { background: var(--blue-light); }
+  .btn-next.visible { display: block; }
+
+  .btn-retry {
+    display: none;
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 8px;
+    border: none;
+    background: #2a1a1a;
+    color: #fca5a5;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+
+  .btn-retry:hover { background: #3a2020; }
+  .btn-retry.visible { display: block; }
+
+  /* Stage clear */
+  .stage-clear {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--green);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .stage-clear.visible { display: block; }
+
+  .clear-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+  .clear-message {
+    font-size: 1rem;
+    color: var(--green);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .clear-next-hint {
+    font-size: 0.85rem;
+    color: var(--gold);
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .btn-next-stage {
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--green);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-next-stage:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  /* ── ENDING SCREEN ── */
+  #ending {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 30%, #0d2a1a 0%, #0f0f1a 70%);
+  }
+
+  .ending-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+  .ending-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(245,158,11,0.5);
+  }
+
+  .ending-sub {
+    font-size: 1rem;
+    color: var(--green);
+    margin-bottom: 2rem;
+    font-weight: 600;
+  }
+
+  .ending-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--white);
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  .ending-message {
+    max-width: 520px;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .values-summary {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+
+  .value-tag {
+    background: rgba(64,226,255,0.15);
+    border: 1px solid var(--blue);
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.82rem;
+    color: var(--blue-light);
+  }
+
+  .btn-restart {
+    padding: 0.85rem 2.5rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--blue);
+    color: #0a0a1a;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-restart:hover { background: var(--blue-light); transform: translateY(-2px); }
+
+  /* Score display */
+  .score-display {
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .score-display span { color: var(--gold); font-weight: 700; }
+
+  /* Office minimap */
+  .office-map {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+
+  .map-room {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    opacity: 0.3;
+    transition: all 0.4s;
+    font-size: 0.65rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .map-room .map-icon { font-size: 1rem; }
+  .map-room.visited { opacity: 0.5; }
+  .map-room.current {
+    opacity: 1;
+    background: rgba(64,226,255,0.12);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+  }
+
+  .map-arrow {
+    color: var(--border);
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    padding: 0 2px;
+    transition: color 0.4s;
+  }
+
+  .map-arrow.passed { color: var(--blue); }
+
+  /* Stage transition */
+  @keyframes stageSlideIn {
+    from { opacity: 0; transform: translateX(50px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes stageSlideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(-50px); }
+  }
+
+  .stage-entering { animation: stageSlideIn 0.35s ease forwards; }
+  .stage-leaving  { animation: stageSlideOut 0.22s ease forwards; pointer-events: none; }
+
+  /* Room flicker overlay */
+  .room-flicker {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    pointer-events: none;
+    z-index: 999;
+    animation: flickerOut 0.6s ease-out forwards;
+  }
+
+  @keyframes flickerOut {
+    0%   { opacity: 0.7; }
+    30%  { opacity: 0.2; }
+    55%  { opacity: 0.5; }
+    80%  { opacity: 0.1; }
+    100% { opacity: 0; }
+  }
+
+  /* ── VISUAL EFFECTS ── */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0) rotate(0); }
+    15%  { transform: translateX(-9px) rotate(-0.6deg); }
+    30%  { transform: translateX(9px) rotate(0.6deg); }
+    45%  { transform: translateX(-6px); }
+    60%  { transform: translateX(6px); }
+    75%  { transform: translateX(-3px); }
+  }
+
+  @keyframes confettiFall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  @keyframes correctFlash {
+    0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+    50%  { box-shadow: 0 0 0 14px rgba(16,185,129,0); }
+    100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+  }
+
+  .shake-anim { animation: shake 0.42s ease; }
+  .correct-flash { animation: correctFlash 0.6s ease; }
+
+  /* Animations */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .quiz-card, .room-card, .stage-clear {
+    animation: slideIn 0.3s ease;
+  }
+
+  /* Typography — Unica One for headings/UI, Pretendard for body */
+  .intro-title,
+  .room-title,
+  .quiz-badge,
+  .stage-clear-title,
+  .btn-start,
+  .btn-submit,
+  .btn-next,
+  .btn-retry,
+  .btn-next-stage,
+  .btn-restart,
+  .timer-wrap,
+  .value-tag,
+  .stage-badge {
+    font-family: 'Unica 77 LL', 'Pretendard', sans-serif;
+    letter-spacing: 0.03em;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .intro-title { font-size: 1.4rem; }
+    .intro-logo { font-size: 2.2rem; }
+    .ox-btn { font-size: 1.5rem; }
+    .game-header { flex-wrap: wrap; gap: 0.5rem; }
+  }
+
+  /* ── STAGE BACKGROUND ── */
+  #bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('https://images.unsplash.com/photo-1495553930166-9587adac30c5?auto=format&fit=crop&w=1920&q=80');
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+  #bg-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+      rgba(6, 6, 18, 0.50) 0%,
+      rgba(6, 6, 18, 0.60) 100%);
+  }
+  #intro, #game, #ending { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<div id="bg-layer"></div>
+
+<!-- ── INTRO ── -->
+<div id="intro">
+
+  <img src="logo.png" alt="EXEM" style="height:60px; margin-bottom:0.5rem;">
+  <div class="intro-title">🔐 사무실을 탈출하라!</div>
+  <div class="intro-story">
+    <em>2026년 3월, 입사 첫날.</em><br><br>
+    동료들은 모두 퇴근하고 당신만 남겨졌는데…<br><br>
+    <em>딸깍— 사무실 문이 잠겼습니다!</em><br><br>
+    사방을 둘러보니 책상 위에 메모가 하나 있습니다.<br>
+    <em>"엑셈의 핵심가치를 증명하면 탈출할 수 있다."</em>
+  </div>
+  <div class="stage-list">
+    <div class="stage-badge">📁 책상 서랍</div>
+    <div class="stage-badge">🗄️ 파일 캐비닛</div>
+    <div class="stage-badge">💻 컴퓨터</div>
+    <div class="stage-badge">🔒 금고</div>
+    <div class="stage-badge">🚪 탈출 출구</div>
+  </div>
+  <button class="btn-start" onclick="startGame()">탈출 시작하기 →</button>
+
+</div>
+
+<!-- ── GAME ── -->
+<div id="game" style="display:none; width:100%; max-width:680px; padding:1rem 1rem 4rem; display:none; flex-direction:column; gap:1rem;">
+
+  <!-- Header -->
+  <div class="game-header">
+    <div class="timer-wrap" id="timerDisplay">⏱ 10:00</div>
+    <div class="office-map" id="officeMap"></div>
+    <div class="score-display">점수 <span id="scoreDisplay">0</span></div>
+  </div>
+
+  <!-- Stage content (animated on transition) -->
+  <div id="stageContent">
+
+    <!-- Room -->
+    <div class="room-card" id="roomCard">
+      <div class="room-header">
+        <div class="room-icon" id="roomIcon"></div>
+        <div>
+          <div class="room-title" id="roomTitle"></div>
+          <div class="room-location" id="roomLocation"></div>
+        </div>
+      </div>
+      <div class="room-story" id="roomStory"></div>
+      <div class="hint-box" id="roomHint"></div>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-progress">
+        <span id="quizProgressText"></span>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+      </div>
+      <div id="quizTypeBadge"></div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div id="quizAnswerArea"></div>
+      <div class="feedback" id="quizFeedback"></div>
+      <button class="btn-retry" id="btnRetry" onclick="retryQuiz()">↩ 다시 시도</button>
+      <button class="btn-next" id="btnNext" onclick="nextQuiz()">다음 문제 →</button>
+    </div>
+
+    <!-- Stage Clear -->
+    <div class="stage-clear" id="stageClear">
+      <div class="clear-icon">🔓</div>
+      <div class="clear-message" id="clearMessage"></div>
+      <div class="clear-next-hint" id="clearHint" style="display:none;"></div>
+      <button class="btn-next-stage" id="btnNextStage" onclick="nextStage()">다음 단계로 →</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ── ENDING ── -->
+<div id="ending" style="display:none; width:100%; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; background:radial-gradient(ellipse at 50% 30%, #0d2a1a 0%, #0f0f1a 70%);">
+  <div class="ending-icon">🎉</div>
+  <div class="ending-title">탈출 성공!</div>
+  <div class="ending-sub">당신은 진정한 엑셈인입니다</div>
+
+  <div class="ending-stats">
+    <div class="stat-box">
+      <div class="stat-value" id="endTime">—</div>
+      <div class="stat-label">소요 시간</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="endScore">—</div>
+      <div class="stat-label">최종 점수</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="endCorrect">—</div>
+      <div class="stat-label">정답률</div>
+    </div>
+  </div>
+
+  <div class="ending-message">
+    엑셈의 핵심가치를 모두 증명했습니다!<br><br>
+    오늘 배운 것들을 실제 업무에서 실천해보세요.<br>
+    <strong style="color:#e2e8f0;">전개일여(全個一如)</strong> — 당신의 성장이 엑셈의 성장입니다.
+    <div class="values-summary">
+      <div class="value-tag">전개일여</div>
+      <div class="value-tag">Passion</div>
+      <div class="value-tag">Speed</div>
+      <div class="value-tag">Flow</div>
+      <div class="value-tag">Work</div>
+      <div class="value-tag">Relationship</div>
+      <div class="value-tag">Communication</div>
+      <div class="value-tag">Philinnovator</div>
+    </div>
+  </div>
+
+  <button class="btn-restart" onclick="restartGame()">다시 도전하기</button>
+</div>
+
+<script>
+// ── VISUAL EFFECTS ──
+const CONFETTI_COLORS = ['#40E2FF','#f59e0b','#10b981','#a78bfa','#fb923c','#ffffff','#f472b6'];
+
+function spawnConfetti(count = 30) {
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    const size = Math.random() * 9 + 5;
+    const x = Math.random() * 100;
+    const dur = (Math.random() * 1.2 + 0.8).toFixed(2);
+    const delay = (Math.random() * 0.4).toFixed(2);
+    const shape = Math.random() > 0.5 ? '50%' : '2px';
+    p.style.cssText = `
+      position:fixed;left:${x}vw;top:-20px;
+      width:${size}px;height:${size}px;
+      background:${color};border-radius:${shape};
+      pointer-events:none;z-index:9999;
+      animation:confettiFall ${dur}s ${delay}s ease-in forwards;
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), (parseFloat(dur) + parseFloat(delay) + 0.15) * 1000);
+  }
+}
+
+function shakeElement(el) {
+  if (!el) return;
+  el.classList.remove('shake-anim');
+  void el.offsetWidth; // reflow
+  el.classList.add('shake-anim');
+  el.addEventListener('animationend', () => el.classList.remove('shake-anim'), { once: true });
+}
+
+let typingTimer = null;
+function typeText(el, text, speed = 14) {
+  if (typingTimer) clearTimeout(typingTimer);
+  el.textContent = '';
+  let i = 0;
+  function next() {
+    if (i < text.length) {
+      el.textContent += text[i++];
+      typingTimer = setTimeout(next, speed);
+    }
+  }
+  next();
+  // 클릭하면 즉시 완성
+  el.style.cursor = 'pointer';
+  el.onclick = () => {
+    if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+    el.textContent = text;
+    el.style.cursor = '';
+    el.onclick = null;
+  };
+}
+
+// ── GAME DATA ──
+const stages = [
+  {
+    icon: '📁', title: '책상 서랍', location: '📍 책상 앞',
+    bg: 'https://images.unsplash.com/photo-1749301630912-efc7d86b5699?auto=format&fit=crop&w=1920&q=80',
+    story: '사무실이 잠겼습니다. 불을 켜려 해도 메인 스위치가 잠금 상태.\n\n어둠 속에서 책상 위 두 장의 메모지를 발견했습니다:\n\n[메모 1] "제국에는 전문가만 들어올 수 있다. EX + ___ = EXEM."\n[메모 2] 프랙탈 도형 스케치 — 큰 삼각형 안에 같은 삼각형, 그 안에 또 삼각형...\n         옆에 작은 글씨: "나의 성장 = 팀의 성장 = 회사의 성장"',
+    hint: '💡 힌트: 두 메모를 조합하면 서랍 자물쇠 2자리 조합을 알 수 있습니다',
+    quizzes: [
+      {
+        type: 'fill',
+        badge: '🔍 메모 1 해독',
+        question: '[메모 1]이 서랍 자물쇠의 첫 번째 암호입니다.\n\nEXEM = "Expert ___"\n\n"제국"을 뜻하는 영어 단어를 입력하세요.',
+        answer: 'empire',
+        displayAnswer: 'Empire',
+        hint: '',
+        feedbackCorrect: '✓ 딸깍— 첫 번째 자물쇠가 풀렸습니다! EXEM = Expert Empire, 전문가 제국.',
+        feedbackWrong: '💡 EXEM의 풀네임을 생각해보세요. Expert + ___ — "제국"을 영어로?'
+      },
+      {
+        type: 'fill',
+        badge: '🔍 메모 2 해독',
+        question: '[메모 2] 프랙탈 도형 아래 이런 글이 있습니다:\n\n"작은 조각이 전체와 같은 형상을 가진다.\n나 하나가 성장하면 팀이 성장하고,\n팀이 성장하면 엑셈이 성장한다."\n\n엑셈은 이 철학을 한자 4글자로 부릅니다.\n두 번째 자물쇠에 이 단어를 입력하세요.',
+        answer: '전개일여',
+        displayAnswer: '전개일여',
+        hint: '',
+        feedbackCorrect: '✓ 쿵— 서랍이 열렸습니다! 전개일여(全個一如), 개인과 전체가 하나라는 철학. 안에서 캐비닛 단서를 발견했습니다! 🔓',
+        feedbackWrong: '💡 메모 2의 도형을 다시 보세요. 개인과 전체가 같은 형상 — 이 철학을 한자 4글자로?'
+      }
+    ],
+    clearMessage: '🔓 서랍이 열렸습니다!\n안에서 파일 캐비닛 단서 카드를 발견했습니다.',
+    nextHint: '📄 카드: "캐비닛 자물쇠는 불꽃 그림과 인터뷰 카드를 조합해야 열린다"'
+  },
+  {
+    icon: '🗄️', title: '파일 캐비닛', location: '📍 파일 캐비닛 앞',
+    bg: 'https://images.unsplash.com/photo-1569235186275-626cb53b83ce?auto=format&fit=crop&w=1920&q=80',
+    story: '파일 캐비닛 표면에 불꽃 3개가 새겨져 있습니다:\n\n🔥 첫 번째: 바람이 불어도 혼자 타오름\n🕯 두 번째: 부싯돌을 치면 타오름, 없으면 꺼짐\n🪨 세 번째: 불을 갖다 대도 타지 않음\n\n캐비닛 옆 게시판에 익명 인터뷰 카드 2장이 붙어 있습니다.',
+    hint: '💡 힌트: 엑셈은 사람의 열정(Passion)을 불에 비유합니다 — 자연성, 가연성, 불연성',
+    quizzes: [
+      {
+        type: 'choice',
+        badge: '🗂️ 인터뷰 카드 1',
+        question: '[인터뷰 카드 1]\n\n"저는 재미있는 프로젝트가 있거나, 좋은 팀원이 있을 때\n정말 열심히 합니다. 하지만 그런 조건이 없으면\n스스로 동기부여가 잘 안 됩니다."\n\n이 직원은 캐비닛의 세 불꽃 중 어느 유형일까요?',
+        options: ['🔥 자연성 — 스스로 불타는 유형', '🕯 가연성 — 조건이 맞으면 불타는 유형', '🪨 불연성 — 불타지 않는 유형', '💥 폭발성 — 순간적으로 타오르는 유형'],
+        answer: 1,
+        feedbackCorrect: '✓ 정답! 조건이 갖춰질 때 타오르는 가연성입니다. 첫 번째 자물쇠 해제!',
+        feedbackWrong: '💡 인터뷰를 다시 읽어보세요. "조건이 없으면 스스로 동기부여가 안 된다" — 세 불꽃 중 어느 유형일까요?'
+      },
+      {
+        type: 'scenario',
+        badge: '🗂️ 인터뷰 카드 2',
+        question: '[인터뷰 카드 2] — 팀장의 메모\n\n"연차가 높은 내가 신입에게 배우는 것이 이상한 일일까?\n나는 그렇게 생각하지 않는다.\n더 나은 방법을 끊임없이 ___하고, 스스로를 향상시키며,\n그 결과로 동료의 인정을 받는 것 — 이것이 진짜 Passion이다."\n\n빈칸에 들어갈 단어는?',
+        options: ['관리', '탐색', '보고', '승인'],
+        answer: 1,
+        feedbackCorrect: '✓ Passion = 더 나은 방법을 끊임없이 탐색하는 것. 캐비닛이 열렸습니다! 🗄️',
+        feedbackWrong: '💡 Passion의 첫 번째 단계를 생각해보세요. 더 나은 방법을 끊임없이 ___하고...'
+      }
+    ],
+    clearMessage: '🔓 파일 캐비닛이 열렸습니다!\n안에서 컴퓨터 로그인 힌트 카드 3장을 찾았습니다.',
+    nextHint: '📄 카드 봉투: "컴퓨터 3자리 비밀번호는 카드 A, B, C에 숨겨져 있다"'
+  },
+  {
+    icon: '💻', title: '컴퓨터', location: '📍 컴퓨터 앞',
+    bg: 'https://images.unsplash.com/photo-1520583457224-aee11bad5112?auto=format&fit=crop&w=1920&q=80',
+    story: '컴퓨터 화면에 3자리 비밀번호 입력창이 떠 있습니다.\n\n모니터 옆에 카드 3장:\n\n[카드 A] "10%만 됐을 때 보여줘라. 50%에 한 번. 90%에 마지막 확인."\n[카드 B] "포로수용소 생존자의 비밀 — 절대적 믿음 + 냉혹한 현실 직시"\n[카드 C] "로그 파일을 뒤지다 갑자기 패턴이 보이고, 온몸이 짜릿해지는 그 순간"',
+    hint: '💡 힌트: PSF의 Speed와 Flow 내용을 떠올려보세요',
+    quizzes: [
+      {
+        type: 'scenario',
+        badge: '💾 카드 A 해독',
+        question: '[카드 A] 실제 상황:\n\n김 대리는 2주짜리 보고서를 혼자 완성한 뒤 팀장에게 제출했습니다.\n팀장은 한마디: "방향이 완전히 달라. 처음부터 다시 해야겠어."\n\n엑셈의 Speed 원칙을 따랐다면, 언제 처음 방향을 공유했을까요?',
+        options: ['완전히 완성한 후 (100%)', '절반 정도 됐을 때 (50%)', '방향만 잡았을 때 (10%)', '팀장이 먼저 물어봤을 때'],
+        answer: 2,
+        feedbackCorrect: '✓ 1번 비밀번호 입력! 10% 시점에 공유해야 잘못된 방향으로 100%를 낭비하지 않습니다.',
+        feedbackWrong: '💡 김 대리가 2주를 낭비한 이유를 생각해보세요. Speed라면 언제 방향을 확인해야 했을까요?'
+      },
+      {
+        type: 'fill',
+        badge: '💾 카드 B 해독',
+        question: '[카드 B]\n\n베트남 전쟁 포로수용소. 어떤 미군 장교는 7년간 갇혀 있었습니다.\n그는 두 가지를 동시에 품었습니다:\n"나는 반드시 살아남을 것이다" — 절대적 믿음\n"지금 이 상황은 매우 고통스럽다" — 냉혹한 현실 직시\n\n이 마인드셋을 장교의 이름을 따 "___ 패러독스"라 합니다.\n장교의 이름은?',
+        answer: '스톡데일',
+        displayAnswer: '스톡데일',
+        hint: '',
+        feedbackCorrect: '✓ 2번 비밀번호 입력! 스톡데일 패러독스 — 믿음과 현실 직시를 동시에.',
+        feedbackWrong: '💡 카드에 설명된 장교의 이름을 그대로 사용하면 됩니다. "Stockdale"을 한국어로?'
+      },
+      {
+        type: 'scenario',
+        badge: '💾 카드 C 해독',
+        question: '[카드 C] 이준혁 씨의 어느 밤:\n\n퇴근 시간이 한참 지났지만 고객사 장애 로그를 뒤지고 있습니다.\n배도 고프고 눈도 피곤합니다.\n\n그런데 — 갑자기 숨어있던 패턴이 눈에 들어왔습니다.\n가슴이 두근거리고, 배고픔을 잊었습니다. 시간이 멈춘 것 같습니다.\n\n이 순간을 엑셈은 어떤 핵심가치로 부를까요?',
+        options: ['Passion — 더 나은 방법을 탐색하는 열정', 'Flow — 문제와 나만 남는 몰입의 순간', 'Speed — 야근까지 하는 빠른 처리', 'Work — 책임의식으로 버티는 것'],
+        answer: 1,
+        feedbackCorrect: '✓ 3번 비밀번호 입력 완료! 바로 이것이 Flow(몰입)입니다! 컴퓨터 로그인 성공! 💻',
+        feedbackWrong: '💡 배고픔도 피곤함도 잊고 완전히 빠져드는 상태 — 네 가지 선택지 중 그 경험을 표현하는 단어는?'
+      }
+    ],
+    clearMessage: '💻 컴퓨터가 켜졌습니다!\n화면에 책장 뒤 금고 위치가 표시됩니다.',
+    nextHint: '📄 화면 메시지: "금고는 Work · Relationship · Communication 세 버튼으로 잠겨있다"'
+  },
+  {
+    icon: '🔒', title: '금고', location: '📍 책장 뒤 금고 앞',
+    bg: 'https://images.unsplash.com/photo-1636572644856-219441002f7f?auto=format&fit=crop&w=1920&q=80',
+    story: '책장을 옮기자 금고가 나타났습니다.\n\n금고 문에 세 개의 버튼: [Work] [Relationship] [Communication]\n각 버튼마다 상황 카드가 붙어 있습니다.\n\n금고 문의 문구:\n"원칙대로 행동할 수 있는 자만이 이 금고를 열 수 있다."',
+    hint: '💡 힌트: 성취추구·책임의식 / 협력·수용 / 투명성·진정성 — 각 가치의 핵심을 적용하세요',
+    quizzes: [
+      {
+        type: 'scenario',
+        badge: '🔐 [Work] 버튼',
+        question: '[Work 버튼 카드]\n\n신입 정 씨, 퇴근 시간 30분 초과.\n오늘 맡은 고객 이슈가 아직 해결 중입니다.\n팀장은 "내일 해도 된다"고 했습니다.\n\n엑셈의 Work — "책임의식"을 가진 정 씨라면?',
+        options: ['팀장 말대로 내일로 미룬다', '고객이 기다리고 있다면 해결하고 퇴근한다', '팀장에게 다시 한번 확인을 요청한다', '동료에게 넘기고 퇴근한다'],
+        answer: 1,
+        feedbackCorrect: '✓ 정답! 책임의식 = 맡은 일은 끝까지. [Work] 버튼이 눌렸습니다!',
+        feedbackWrong: '💡 Work의 핵심은 "책임의식"입니다. 고객이 기다리고 있다면, 내가 맡은 일은 어떻게 해야 할까요?'
+      },
+      {
+        type: 'scenario',
+        badge: '🔐 [Relationship] 버튼',
+        question: '[Relationship 버튼 카드]\n\n15년차 박 부장이 1년차 이 주임의 코드 리뷰를 받았습니다.\n이 주임이 박 부장 코드에서 더 효율적인 방법을 제안했습니다.\n\n엑셈의 "수용(受容)" 원칙에 따르면, 박 부장은?',
+        options: ['연차 차이를 생각해 정중히 거절한다', '형식적으로 고마워하되 반영하지 않는다', '경력과 관계없이 좋은 방법이면 적극 받아들인다', '다음 미팅에서 다시 논의하자고 미룬다'],
+        answer: 2,
+        feedbackCorrect: '✓ 정답! 수용 = 연차·직급과 무관하게 배울 점을 찾는 열린 태도. [Relationship] 버튼 해제!',
+        feedbackWrong: '💡 "수용(受容)"의 수는 받아들인다는 뜻입니다. 연차와 상관없이 좋은 방법을 대하는 올바른 태도는?'
+      },
+      {
+        type: 'choice',
+        badge: '🔐 [Communication] 버튼',
+        question: '[Communication 버튼 카드]\n\n팀 A가 중요한 고객 이슈를 해결했습니다.\n담당자 최 씨 생각:\n"다른 팀은 우리 고객사가 아니니까 굳이 공유 안 해도 되겠지."\n\n엑셈의 Communication 원칙에서 이 행동의 문제는?',
+        options: ['공유 방식이 잘못됐다', '"투명하게 적극 공유"하는 원칙에 어긋난다', '타이밍이 늦었다', '문제없다'],
+        answer: 1,
+        feedbackCorrect: '✓ 정답! 자신의 판단으로 공유 범위를 제한하는 것은 투명성 원칙 위반입니다. 금고가 열렸습니다! 🔓',
+        feedbackWrong: '💡 "굳이 안 해도 되겠지"라는 생각 — 엑셈의 투명성·적극적 공유 원칙에 비추어 어떤 문제가 있을까요?'
+      }
+    ],
+    clearMessage: '🔓 금고가 열렸습니다!\n안에서 탈출 열쇠를 획득했습니다!',
+    nextHint: '🗝️ 열쇠에 새겨진 문구: "마지막 관문 — 엑셈인의 마음가짐을 증명하라"'
+  },
+  {
+    icon: '🚪', title: '탈출 출구', location: '📍 출구 앞 — 마지막 관문',
+    bg: 'https://images.unsplash.com/photo-1681837026486-8964ee84b6b9?auto=format&fit=crop&w=1920&q=80',
+    story: '드디어 출구입니다!\n\n마지막 잠금장치 앞에 세 장의 카드가 떨어져 있습니다:\n\n[카드 1] "이 세 가지 질문을 매일 스스로에게 묻는 사람만이 엑셈인이다."\n[카드 2] "일상 업무가 ___ 을 만들어내는 과정이라고 생각하는 사람"\n[카드 3] "기술은 연봉 협상 카드가 아니다. 그것은 ___이자 태도다."',
+    hint: '💡 마지막 도전! 생활규칙 3가지와 필리노베이터의 마음가짐을 떠올리세요',
+    quizzes: [
+      {
+        type: 'choice',
+        badge: '🚪 카드 1 잠금',
+        question: '[카드 1] 잠금 다이얼:\n\n"매일 스스로에게 물어야 할 3가지 질문"이 조합입니다.\n아래 중 엑셈 생활규칙 3가지를 올바르게 나열한 것은?',
+        options: [
+          '① 조언을 구하고 있나요?  ② 조언을 해주고 있나요?  ③ 친구를 만들고 있나요?',
+          '① 성과를 내고 있나요?  ② 배우고 있나요?  ③ 성장하고 있나요?',
+          '① 협력하고 있나요?  ② 소통하고 있나요?  ③ 투명하게 공유하나요?',
+          '① 열정이 있나요?  ② 빠르게 하나요?  ③ 몰입하고 있나요?'
+        ],
+        answer: 0,
+        feedbackCorrect: '✓ 맞습니다! 조언 구하기 · 조언 해주기 · 친구 만들기 — 카드 1 해제!',
+        feedbackWrong: '💡 세 질문 모두 관계와 성장에 관한 것입니다. 조언을 주고받고, 그리고 ___을 만드는 것 — 다시 찾아보세요.'
+      },
+      {
+        type: 'fill',
+        badge: '🚪 카드 2 잠금',
+        question: '[카드 2]\n\n"이 사람은 오늘 처리한 평범한 보고서 하나에서도\n새로운 패턴과 법칙을 찾아냅니다.\n왜냐하면, 그에게 일이란 곧 ___ 생산 과정이기 때문입니다."\n\n빈칸에 들어갈 단어는?',
+        answer: '지식',
+        displayAnswer: '지식',
+        hint: '철학자(Philosopher)는 업무를 통해 무엇을 쌓는다고 볼까?',
+        feedbackCorrect: '✓ 정확합니다! 필리노베이터의 철학자 마음 = 업무를 "지식 생산 과정"으로 인식. 카드 2 해제!',
+        feedbackWrong: '💡 필리노베이터의 "철학자(Philosopher)" 마음 — 업무를 통해 무언가를 만들어낸다고 했는데, 그게 무엇일까요?'
+      },
+      {
+        type: 'scenario',
+        badge: '🚪 카드 3 — 최종 잠금',
+        question: '[카드 3] 두 사람의 대화:\n\nA: "저는 이 기술을 익히면 연봉이 올라가니까 공부합니다."\nB: "저는 이 기술 자체가 저의 인격이고 태도라고 생각해요.\n    언젠가 후배들의 디딤돌이 될 유산을 쌓는 과정이라고요."\n\n엑셈이 정의하는 "일의 의미"에 부합하는 사람은?',
+        options: ['A — 보상을 위해 성장하는 사람', 'B — 기술을 인격이자 유산으로 보는 사람', '두 사람 모두 맞다', '두 사람 모두 틀렸다'],
+        answer: 1,
+        feedbackCorrect: '✓ 정답! 기술은 인격·태도·유산 — 개인 보상의 수단이 아닙니다. 🎉 탈출 성공!',
+        feedbackWrong: '💡 두 사람 중 누가 기술을 "연봉 카드"가 아닌 인격·태도·유산으로 바라보고 있나요?'
+      }
+    ],
+    clearMessage: '🎉 탈출 성공!\n당신은 진정한 엑셈인입니다!',
+    nextHint: ''
+  }
+];
+
+// ── STATE ──
+let currentStage = 0;
+let currentQuiz = 0;
+let score = 0;
+let totalAttempts = 0;
+let totalCorrect = 0;
+let timerInterval = null;
+let secondsLeft = 600; // 10 minutes
+let startTime = null;
+let gameStarted = false;
+
+// ── INIT ──
+function startGame() {
+  document.getElementById('intro').style.display = 'none';
+  const gameEl = document.getElementById('game');
+  gameEl.style.display = 'flex';
+  gameEl.style.flexDirection = 'column';
+
+  // Build office minimap
+  const map = document.getElementById('officeMap');
+  map.innerHTML = stages.map((s, i) => {
+    const arrow = i > 0 ? `<div class="map-arrow" id="mapArrow${i}">›</div>` : '';
+    return `${arrow}<div class="map-room" id="mapRoom${i}"><span class="map-icon">${s.icon}</span><span>${s.title}</span></div>`;
+  }).join('');
+
+  startTime = Date.now();
+  startTimer();
+  addFlicker();
+  loadStage(0);
+}
+
+function updateOfficeMap(stageIdx) {
+  stages.forEach((_, i) => {
+    const room = document.getElementById(`mapRoom${i}`);
+    const arrow = document.getElementById(`mapArrow${i}`);
+    if (!room) return;
+    room.className = 'map-room';
+    if (i < stageIdx) room.classList.add('visited');
+    else if (i === stageIdx) room.classList.add('current');
+    if (arrow) arrow.className = `map-arrow${i <= stageIdx ? ' passed' : ''}`;
+  });
+}
+
+function addFlicker() {
+  const el = document.createElement('div');
+  el.className = 'room-flicker';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 700);
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimer();
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      showEnding(true);
+    }
+  }, 1000);
+}
+
+function updateTimer() {
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  const display = document.getElementById('timerDisplay');
+  display.textContent = `⏱ ${m}:${s.toString().padStart(2, '0')}`;
+  display.className = 'timer-wrap';
+  if (secondsLeft <= 120) display.classList.add('danger');
+  else if (secondsLeft <= 180) display.classList.add('warning');
+}
+
+// ── STAGE ──
+function loadStage(stageIdx, animate) {
+  const sc = document.getElementById('stageContent');
+
+  const doLoad = () => {
+    currentStage = stageIdx;
+    currentQuiz = 0;
+    const stage = stages[stageIdx];
+
+    updateOfficeMap(stageIdx);
+
+    // Stage background (flicker effect masks the swap)
+    document.getElementById('bg-layer').style.backgroundImage = `url('${stage.bg}')`;
+
+    // Room card
+    document.getElementById('roomIcon').textContent = stage.icon;
+    document.getElementById('roomTitle').textContent = stage.title;
+    document.getElementById('roomLocation').textContent = stage.location;
+    typeText(document.getElementById('roomStory'), stage.story, 14);
+    document.getElementById('roomHint').textContent = stage.hint;
+
+    // Hide clear panel
+    document.getElementById('stageClear').classList.remove('visible');
+    document.getElementById('quizCard').style.display = 'block';
+
+    loadQuiz(stageIdx, 0);
+
+    sc.classList.remove('stage-leaving');
+    sc.classList.add('stage-entering');
+    setTimeout(() => sc.classList.remove('stage-entering'), 400);
+  };
+
+  if (animate) {
+    sc.classList.add('stage-leaving');
+    setTimeout(doLoad, 230);
+  } else {
+    doLoad();
+  }
+}
+
+// ── QUIZ ──
+function loadQuiz(stageIdx, quizIdx) {
+  const stage = stages[stageIdx];
+  const quiz = stage.quizzes[quizIdx];
+
+  const total = stage.quizzes.length;
+  const pct = (quizIdx / total) * 100;
+
+  document.getElementById('quizProgressText').textContent = `문제 ${quizIdx + 1} / ${total}`;
+  document.getElementById('quizProgressFill').style.width = `${pct}%`;
+
+  // Badge
+  const badgeEl = document.getElementById('quizTypeBadge');
+  let badgeClass = 'badge-ox';
+  if (quiz.type === 'choice') badgeClass = 'badge-choice';
+  else if (quiz.type === 'fill') badgeClass = 'badge-fill';
+  else if (quiz.type === 'scenario') badgeClass = 'badge-scenario';
+  badgeEl.innerHTML = `<span class="quiz-type-badge ${badgeClass}">${quiz.badge}</span>`;
+
+  document.getElementById('quizQuestion').textContent = quiz.question;
+
+  // Answer area
+  const area = document.getElementById('quizAnswerArea');
+  area.innerHTML = '';
+
+  if (quiz.type === 'ox') {
+    area.innerHTML = `
+      <div class="ox-buttons">
+        <button class="ox-btn" id="oxO" onclick="answerOX(true)">⭕</button>
+        <button class="ox-btn" id="oxX" onclick="answerOX(false)">❌</button>
+      </div>`;
+  } else if (quiz.type === 'choice' || quiz.type === 'scenario') {
+    const opts = quiz.options.map((opt, i) =>
+      `<button class="option-btn" id="opt${i}" onclick="answerChoice(${i})">${opt}</button>`
+    ).join('');
+    area.innerHTML = `<div class="options-list">${opts}</div>`;
+  } else if (quiz.type === 'fill') {
+    area.innerHTML = `
+      ${quiz.hint ? `<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">힌트: ${quiz.hint}</div>` : ''}
+      <div class="fill-wrap">
+        <input class="fill-input" id="fillInput" type="text" placeholder="정답 입력..."
+               onkeydown="if(event.key==='Enter')answerFill()">
+        <button class="btn-submit" id="fillSubmit" onclick="answerFill()">확인</button>
+      </div>`;
+    setTimeout(() => document.getElementById('fillInput')?.focus(), 100);
+  }
+
+  // Reset feedback
+  const fb = document.getElementById('quizFeedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+
+  document.getElementById('btnNext').className = 'btn-next';
+  document.getElementById('btnRetry').className = 'btn-retry';
+}
+
+function showFeedback(isCorrect, message, quizIdx, stageIdx) {
+  totalAttempts++;
+  if (isCorrect) {
+    totalCorrect++;
+    score += 100;
+    document.getElementById('scoreDisplay').textContent = score;
+  }
+
+  const fb = document.getElementById('quizFeedback');
+  fb.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
+  fb.textContent = message;
+
+  if (isCorrect) {
+    const qc = document.getElementById('quizCard');
+    qc.classList.remove('correct-flash');
+    void qc.offsetWidth;
+    qc.classList.add('correct-flash');
+    qc.addEventListener('animationend', () => qc.classList.remove('correct-flash'), { once: true });
+
+    const btnNext = document.getElementById('btnNext');
+    const stage = stages[stageIdx];
+    const isLast = quizIdx >= stage.quizzes.length - 1;
+    btnNext.className = 'btn-next visible';
+    btnNext.textContent = isLast ? '완료 →' : '다음 문제 →';
+    document.getElementById('btnRetry').className = 'btn-retry';
+  } else {
+    shakeElement(document.getElementById('quizCard'));
+    document.getElementById('btnRetry').className = 'btn-retry visible';
+    document.getElementById('btnNext').className = 'btn-next';
+  }
+}
+
+function retryQuiz() {
+  loadQuiz(currentStage, currentQuiz);
+}
+
+function answerOX(value) {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  const isCorrect = value === quiz.answer;
+
+  // Style buttons
+  const btnO = document.getElementById('oxO');
+  const btnX = document.getElementById('oxX');
+  btnO.disabled = btnX.disabled = true;
+
+  if (value === true) {
+    btnO.className = `ox-btn ${isCorrect ? 'selected-correct' : 'selected-wrong'}`;
+    if (!isCorrect) btnX.className = 'ox-btn selected-correct';
+  } else {
+    btnX.className = `ox-btn ${isCorrect ? 'selected-correct' : 'selected-wrong'}`;
+    if (!isCorrect) btnO.className = 'ox-btn selected-correct';
+  }
+
+  showFeedback(isCorrect,
+    isCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
+    currentQuiz, currentStage);
+}
+
+function answerChoice(idx) {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  const isCorrect = idx === quiz.answer;
+
+  quiz.options.forEach((_, i) => {
+    const btn = document.getElementById(`opt${i}`);
+    btn.disabled = true;
+    if (i === idx) btn.className = `option-btn ${isCorrect ? 'correct' : 'wrong'}`;
+  });
+
+  showFeedback(isCorrect,
+    isCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
+    currentQuiz, currentStage);
+}
+
+function answerFill() {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  const input = document.getElementById('fillInput');
+  const val = input.value.trim().toLowerCase();
+  const isCorrect = val === quiz.answer.toLowerCase() ||
+    (quiz.displayAnswer && val === quiz.displayAnswer.toLowerCase());
+
+  input.disabled = true;
+  document.getElementById('fillSubmit').disabled = true;
+  input.className = `fill-input ${isCorrect ? 'correct' : 'wrong'}`;
+
+  showFeedback(isCorrect,
+    isCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
+    currentQuiz, currentStage);
+}
+
+function nextQuiz() {
+  const stage = stages[currentStage];
+  const nextQuizIdx = currentQuiz + 1;
+
+  if (nextQuizIdx >= stage.quizzes.length) {
+    showStageClear();
+  } else {
+    currentQuiz = nextQuizIdx;
+    loadQuiz(currentStage, currentQuiz);
+  }
+}
+
+function showStageClear() {
+  const stage = stages[currentStage];
+  document.getElementById('quizCard').style.display = 'none';
+
+  const clearEl = document.getElementById('stageClear');
+  clearEl.classList.add('visible');
+
+  document.getElementById('clearMessage').textContent = stage.clearMessage;
+
+  const hintEl = document.getElementById('clearHint');
+  if (stage.nextHint) {
+    hintEl.textContent = stage.nextHint;
+    hintEl.style.display = 'block';
+  } else {
+    hintEl.style.display = 'none';
+  }
+
+  const btnNext = document.getElementById('btnNextStage');
+  if (currentStage >= stages.length - 1) {
+    btnNext.textContent = '🎉 탈출!';
+  } else {
+    btnNext.textContent = '다음 단계로 →';
+  }
+}
+
+function nextStage() {
+  if (currentStage >= stages.length - 1) {
+    showEnding(false);
+    return;
+  }
+
+  spawnConfetti(60);
+  addFlicker();
+  setTimeout(() => {
+    loadStage(currentStage + 1, true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 150);
+}
+
+function showEnding(timeout) {
+  clearInterval(timerInterval);
+
+  document.getElementById('game').style.display = 'none';
+  const endingEl = document.getElementById('ending');
+  endingEl.style.display = 'flex';
+  endingEl.style.flexDirection = 'column';
+  endingEl.style.alignItems = 'center';
+  endingEl.style.justifyContent = 'center';
+
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const em = Math.floor(elapsed / 60);
+  const es = elapsed % 60;
+  document.getElementById('endTime').textContent = `${em}분 ${es}초`;
+  document.getElementById('endScore').textContent = score + '점';
+  const pct = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+  document.getElementById('endCorrect').textContent = `${pct}%`;
+
+  if (timeout) {
+    document.querySelector('.ending-title').textContent = '시간 초과!';
+    document.querySelector('.ending-icon').textContent = '⏰';
+    document.querySelector('.ending-sub').textContent = '아쉽지만 다시 도전해보세요';
+    document.querySelector('.ending-sub').style.color = '#f59e0b';
+  }
+}
+
+function restartGame() {
+  location.reload();
+}
+</script>
+
+</body>
+</html>
