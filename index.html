@@ -757,10 +757,83 @@
   .btn-next-stage,
   .btn-restart,
   .timer-wrap,
+  .timer-circle .timer-text,
   .value-tag,
   .stage-badge {
     font-family: 'Unica 77 LL', 'Pretendard', sans-serif;
     letter-spacing: 0.03em;
+  }
+
+  /* Circular Timer */
+  .timer-circle {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .timer-circle svg {
+    transform: rotate(-90deg);
+    width: 56px;
+    height: 56px;
+  }
+
+  .timer-circle .track {
+    fill: none;
+    stroke: var(--surface2);
+    stroke-width: 4;
+  }
+
+  .timer-circle .progress {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+  }
+
+  .timer-circle .progress.warning { stroke: var(--gold); }
+  .timer-circle .progress.danger { stroke: var(--red); }
+
+  .timer-circle .timer-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Unica 77 LL', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* Overall progress (5 stages) */
+  .overall-progress {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: all var(--transition-med);
+  }
+
+  .progress-dot.completed {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: var(--glow-green);
+  }
+
+  .progress-dot.current {
+    background: var(--blue);
+    border-color: var(--blue);
+    box-shadow: var(--glow-blue);
+    transform: scale(1.3);
   }
 
   /* Responsive */
@@ -826,7 +899,15 @@
 
   <!-- Header -->
   <div class="game-header">
-    <div class="timer-wrap" id="timerDisplay">⏱ 10:00</div>
+    <div class="timer-circle" id="timerCircle">
+      <svg viewBox="0 0 56 56">
+        <circle class="track" cx="28" cy="28" r="24"/>
+        <circle class="progress" id="timerProgress" cx="28" cy="28" r="24"
+                stroke-dasharray="150.8" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-text" id="timerDisplay">10:00</div>
+    </div>
+    <div class="overall-progress" id="overallProgress"></div>
     <div class="office-map" id="officeMap"></div>
     <div class="score-display">점수 <span id="scoreDisplay">0</span></div>
   </div>
@@ -1173,6 +1254,12 @@ function startGame() {
     return `${arrow}<div class="map-room" id="mapRoom${i}"><span class="map-icon">${s.icon}</span><span>${s.title}</span></div>`;
   }).join('');
 
+  // Build overall progress dots
+  const overallEl = document.getElementById('overallProgress');
+  overallEl.innerHTML = stages.map((_, i) =>
+    `<div class="progress-dot" id="progressDot${i}"></div>`
+  ).join('');
+
   startTime = Date.now();
   startTimer();
   addFlicker();
@@ -1188,6 +1275,15 @@ function updateOfficeMap(stageIdx) {
     if (i < stageIdx) room.classList.add('visited');
     else if (i === stageIdx) room.classList.add('current');
     if (arrow) arrow.className = `map-arrow${i <= stageIdx ? ' passed' : ''}`;
+  });
+
+  // Update overall progress dots
+  stages.forEach((_, i) => {
+    const dot = document.getElementById(`progressDot${i}`);
+    if (!dot) return;
+    dot.className = 'progress-dot';
+    if (i < stageIdx) dot.classList.add('completed');
+    else if (i === stageIdx) dot.classList.add('current');
   });
 }
 
@@ -1213,10 +1309,18 @@ function updateTimer() {
   const m = Math.floor(secondsLeft / 60);
   const s = secondsLeft % 60;
   const display = document.getElementById('timerDisplay');
-  display.textContent = `⏱ ${m}:${s.toString().padStart(2, '0')}`;
-  display.className = 'timer-wrap';
-  if (secondsLeft <= 120) display.classList.add('danger');
-  else if (secondsLeft <= 180) display.classList.add('warning');
+  display.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+
+  // Update circular progress
+  const circumference = 2 * Math.PI * 24; // ~150.8
+  const pct = secondsLeft / 600;
+  const offset = circumference * (1 - pct);
+  const progress = document.getElementById('timerProgress');
+  progress.style.strokeDashoffset = offset;
+
+  progress.classList.remove('warning', 'danger');
+  if (secondsLeft <= 120) progress.classList.add('danger');
+  else if (secondsLeft <= 180) progress.classList.add('warning');
 }
 
 // ── STAGE ──
