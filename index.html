@@ -988,6 +988,76 @@
     transform: translateY(-2px);
   }
 
+  /* Enhanced quiz feedback */
+  @keyframes unlockPulse {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.15); }
+    60%  { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes greenFlash {
+    0%   { background: transparent; }
+    30%  { background: rgba(16, 185, 129, 0.15); }
+    100% { background: transparent; }
+  }
+
+  @keyframes redFlash {
+    0%   { background: transparent; }
+    30%  { background: rgba(239, 68, 68, 0.12); }
+    100% { background: transparent; }
+  }
+
+  .unlock-anim { animation: unlockPulse 0.5s ease; }
+  .screen-green-flash { animation: greenFlash 0.6s ease; }
+  .screen-red-flash   { animation: redFlash 0.5s ease; }
+
+  /* Discovery popup */
+  .discovery-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 200;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 1.5rem 2.5rem;
+    text-align: center;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    box-shadow: var(--glow-gold);
+  }
+
+  @keyframes popIn {
+    to { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  @keyframes popOut {
+    from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    to   { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  }
+
+  .discovery-popup .discovery-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .discovery-popup .discovery-text { color: var(--gold); font-weight: 700; font-size: 1rem; }
+
+  /* Sparkle particles */
+  .sparkle {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 201;
+    animation: sparkleFade 0.8s ease-out forwards;
+  }
+
+  @keyframes sparkleFade {
+    0%   { transform: scale(1) translate(0, 0); opacity: 1; }
+    100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
+  }
+
   /* Responsive */
   @media (max-width: 480px) {
     .intro-title { font-size: 1.4rem; }
@@ -1220,6 +1290,52 @@ function initParallax() {
       bg.style.backgroundPosition = `calc(50% + ${x}px) calc(50% + ${y}px)`;
     });
   }
+}
+
+// ── ENHANCED FEEDBACK ──
+function screenFlash(color) {
+  const game = document.getElementById('game');
+  const cls = color === 'green' ? 'screen-green-flash' : 'screen-red-flash';
+  game.classList.remove(cls);
+  void game.offsetWidth;
+  game.classList.add(cls);
+  game.addEventListener('animationend', () => game.classList.remove(cls), { once: true });
+
+  if (color === 'red' && navigator.vibrate) {
+    navigator.vibrate([50, 30, 50]);
+  } else if (color === 'green' && navigator.vibrate) {
+    navigator.vibrate(30);
+  }
+}
+
+function showDiscovery(text) {
+  const popup = document.createElement('div');
+  popup.className = 'discovery-popup';
+  popup.innerHTML = `
+    <div class="discovery-icon">🔍</div>
+    <div class="discovery-text">${text}</div>
+  `;
+  document.body.appendChild(popup);
+
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const angle = (i / 12) * Math.PI * 2;
+    const dist = 40 + Math.random() * 30;
+    s.style.cssText = `
+      left: 50%; top: 50%;
+      --tx: ${Math.cos(angle) * dist}px;
+      --ty: ${Math.sin(angle) * dist}px;
+      animation-delay: ${Math.random() * 0.2}s;
+    `;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+
+  setTimeout(() => {
+    popup.style.animation = 'popOut 0.3s ease forwards';
+    setTimeout(() => popup.remove(), 300);
+  }, 1200);
 }
 
 // ── GAME DATA ──
@@ -1635,6 +1751,9 @@ function showFeedback(isCorrect, message, quizIdx, stageIdx) {
     totalCorrect++;
     score += 100;
     document.getElementById('scoreDisplay').textContent = score;
+    screenFlash('green');
+  } else {
+    screenFlash('red');
   }
 
   const fb = document.getElementById('quizFeedback');
@@ -1734,25 +1853,27 @@ function showStageClear() {
   const stage = stages[currentStage];
   document.getElementById('quizCard').style.display = 'none';
 
-  const clearEl = document.getElementById('stageClear');
-  clearEl.classList.add('visible');
+  showDiscovery('단서 발견!');
 
-  document.getElementById('clearMessage').textContent = stage.clearMessage;
+  setTimeout(() => {
+    const clearEl = document.getElementById('stageClear');
+    clearEl.classList.add('visible');
+    clearEl.classList.add('unlock-anim');
+    clearEl.addEventListener('animationend', () => clearEl.classList.remove('unlock-anim'), { once: true });
 
-  const hintEl = document.getElementById('clearHint');
-  if (stage.nextHint) {
-    hintEl.textContent = stage.nextHint;
-    hintEl.style.display = 'block';
-  } else {
-    hintEl.style.display = 'none';
-  }
+    document.getElementById('clearMessage').textContent = stage.clearMessage;
 
-  const btnNext = document.getElementById('btnNextStage');
-  if (currentStage >= stages.length - 1) {
-    btnNext.textContent = '🎉 탈출!';
-  } else {
-    btnNext.textContent = '다음 단계로 →';
-  }
+    const hintEl = document.getElementById('clearHint');
+    if (stage.nextHint) {
+      hintEl.textContent = stage.nextHint;
+      hintEl.style.display = 'block';
+    } else {
+      hintEl.style.display = 'none';
+    }
+
+    const btnNext = document.getElementById('btnNextStage');
+    btnNext.textContent = currentStage >= stages.length - 1 ? '🎉 탈출!' : '다음 단계로 →';
+  }, 1400);
 }
 
 function nextStage() {
