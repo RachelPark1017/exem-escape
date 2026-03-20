@@ -2147,7 +2147,28 @@ const stages = [
     bg: 'https://images.unsplash.com/photo-1569235186275-626cb53b83ce?auto=format&fit=crop&w=1920&q=80',
     story: '파일 캐비닛 표면에 불꽃 3개가 새겨져 있습니다:\n\n🔥 첫 번째: 바람이 불어도 혼자 타오름\n🕯 두 번째: 부싯돌을 치면 타오름, 없으면 꺼짐\n🪨 세 번째: 불을 갖다 대도 타지 않음\n\n캐비닛 옆 게시판에 익명 인터뷰 카드 2장이 붙어 있습니다.',
     hint: '💡 힌트: 엑셈은 사람의 열정(Passion)을 불에 비유합니다 — 자연성, 가연성, 불연성',
-    cutscene: '서랍에서 찾은 단서 카드를 손에 쥐고 일어섰습니다.\n\n사무실 구석, 파일 캐비닛의 금속 표면이 희미하게 빛납니다.\n\n발걸음을 옮기자 복도의 형광등이 한 번 깜빡입니다...',
+    cutsceneScenes: [
+      {
+        bg: 'https://images.unsplash.com/photo-1749301630912-efc7d86b5699?auto=format&fit=crop&w=1920&q=80',
+        text: '서랍에서 찾은 단서 카드를 손에 쥐고 일어섰습니다.',
+        transition: 'zoomIn',
+        duration: 3000,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      },
+      {
+        bg: 'https://images.unsplash.com/photo-1569235186275-626cb53b83ce?auto=format&fit=crop&w=1920&q=80',
+        text: '사무실 구석, 파일 캐비닛의 금속 표면이 희미하게 빛납니다.\n\n발걸음을 옮기자 복도의 형광등이 한 번 깜빡입니다...',
+        transition: 'slideLeft',
+        duration: 3500,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      }
+    ],
     quizzes: [
       {
         type: 'match',
@@ -2189,7 +2210,28 @@ const stages = [
     bg: 'https://images.unsplash.com/photo-1520583457224-aee11bad5112?auto=format&fit=crop&w=1920&q=80',
     story: '컴퓨터 화면에 3자리 비밀번호 입력창이 떠 있습니다.\n\n모니터 옆에 카드 3장:\n\n[카드 A] "10%만 됐을 때 보여줘라. 50%에 한 번. 90%에 마지막 확인."\n[카드 B] "포로수용소 생존자의 비밀 — 절대적 믿음 + 냉혹한 현실 직시"\n[카드 C] "로그 파일을 뒤지다 갑자기 패턴이 보이고, 온몸이 짜릿해지는 그 순간"',
     hint: '💡 힌트: PSF의 Speed와 Flow 내용을 떠올려보세요',
-    cutscene: '캐비닛에서 찾은 카드 3장을 주머니에 넣었습니다.\n\n책상 위 컴퓨터 화면이 대기 모드로 깜빡이고 있습니다.\n\n비밀번호 입력창이 당신을 기다리고 있습니다...',
+    cutsceneScenes: [
+      {
+        bg: 'https://images.unsplash.com/photo-1569235186275-626cb53b83ce?auto=format&fit=crop&w=1920&q=80',
+        text: '캐비닛에서 찾은 카드 3장을 주머니에 넣었습니다.',
+        transition: 'fadeIn',
+        duration: 3000,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      },
+      {
+        bg: 'https://images.unsplash.com/photo-1520583457224-aee11bad5112?auto=format&fit=crop&w=1920&q=80',
+        text: '컴퓨터 화면이 깜빡이며 켜집니다.\n\n비밀번호 입력창이 당신을 기다리고 있습니다...',
+        transition: 'glitch',
+        duration: 3500,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      }
+    ],
     quizzes: [
       {
         type: 'order',
@@ -2247,7 +2289,28 @@ const stages = [
     bg: 'https://images.unsplash.com/photo-1636572644856-219441002f7f?auto=format&fit=crop&w=1920&q=80',
     story: '책장을 옮기자 금고가 나타났습니다.\n\n금고 문에 세 개의 버튼: [Work] [Relationship] [Communication]\n각 버튼마다 상황 카드가 붙어 있습니다.\n\n금고 문의 문구:\n"원칙대로 행동할 수 있는 자만이 이 금고를 열 수 있다."',
     hint: '💡 힌트: 성취추구·책임의식 / 협력·수용 / 투명성·진정성 — 각 가치의 핵심을 적용하세요',
-    cutscene: '컴퓨터 화면에 나타난 지도를 따라 책장 뒤로 향합니다.\n\n무거운 책장을 밀자 — 먼지가 날리며 금고가 드러났습니다.\n\n세 개의 버튼이 차가운 금속 위에서 빛나고 있습니다...',
+    cutsceneScenes: [
+      {
+        bg: 'https://images.unsplash.com/photo-1520583457224-aee11bad5112?auto=format&fit=crop&w=1920&q=80',
+        text: '모니터에 나타난 지도를 따라 책장 뒤로 향합니다.',
+        transition: 'blur',
+        duration: 3000,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      },
+      {
+        bg: 'https://images.unsplash.com/photo-1636572644856-219441002f7f?auto=format&fit=crop&w=1920&q=80',
+        text: '무거운 책장을 밀자 — 먼지가 날리며 금고가 드러났습니다.\n\n세 개의 버튼이 차가운 금속 위에서 빛나고 있습니다...',
+        transition: 'slideLeft',
+        duration: 3500,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      }
+    ],
     quizzes: [
       {
         type: 'match',
@@ -2303,7 +2366,37 @@ const stages = [
     bg: 'https://images.unsplash.com/photo-1681837026486-8964ee84b6b9?auto=format&fit=crop&w=1920&q=80',
     story: '드디어 출구입니다!\n\n마지막 잠금장치 앞에 세 장의 카드가 떨어져 있습니다:\n\n[카드 1] "이 세 가지 질문을 매일 스스로에게 묻는 사람만이 엑셈인이다."\n[카드 2] "일상 업무가 ___ 을 만들어내는 과정이라고 생각하는 사람"\n[카드 3] "기술은 연봉 협상 카드가 아니다. 그것은 ___이자 태도다."',
     hint: '💡 마지막 도전! 생활규칙 3가지와 필리노베이터의 마음가짐을 떠올리세요',
-    cutscene: '금고에서 꺼낸 열쇠를 꽉 쥐고 출구로 달려갑니다.\n\n복도 끝, 마지막 문 앞에 도착했습니다.\n\n열쇠를 넣으려는 순간 — 마지막 잠금장치가 보입니다...',
+    cutsceneScenes: [
+      {
+        bg: 'https://images.unsplash.com/photo-1636572644856-219441002f7f?auto=format&fit=crop&w=1920&q=80',
+        text: '금고에서 꺼낸 열쇠를 꽉 쥐고 출구로 달려갑니다.',
+        transition: 'zoomIn',
+        duration: 3000,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      },
+      {
+        bg: 'https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1920&q=80',
+        text: '복도 끝, 출구를 향해 마지막 발걸음을 옮깁니다.',
+        transition: 'slideLeft',
+        duration: 3000,
+        textEffect: 'typewriter',
+        textSpeed: 30,
+        overlay: 'darker',
+        effects: ['vignette']
+      },
+      {
+        bg: 'https://images.unsplash.com/photo-1681837026486-8964ee84b6b9?auto=format&fit=crop&w=1920&q=80',
+        text: '열쇠를 넣으려는 순간—\n\n마지막 잠금장치가 보입니다...',
+        transition: 'fadeIn',
+        duration: 3500,
+        textEffect: 'fadeLines',
+        overlay: 'darker',
+        effects: ['vignette']
+      }
+    ],
     quizzes: [
       {
         type: 'toggle',
@@ -3384,10 +3477,10 @@ function nextStage() {
   }
 
   const nextIdx = currentStage + 1;
-  const nextCutscene = stages[nextIdx].cutscene;
+  const nextScenes = stages[nextIdx].cutsceneScenes;
 
-  if (nextCutscene) {
-    showCutscene(nextCutscene, () => {
+  if (nextScenes) {
+    playCinematic(nextScenes, () => {
       addFlicker();
       setTimeout(() => {
         loadStage(nextIdx, true);
