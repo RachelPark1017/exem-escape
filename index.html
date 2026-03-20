@@ -62,53 +62,11 @@
     width: 100%;
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    text-align: center;
-    background: radial-gradient(ellipse at 50% 30%, rgba(30,42,74,0.55) 0%, rgba(15,15,26,0.45) 70%);
+    background: #000;
   }
 
-  .intro-logo {
-    font-size: 3rem;
-    font-weight: 900;
-    letter-spacing: 0.3em;
-    color: var(--white);
-    text-shadow: 0 0 30px rgba(64,226,255,0.8);
-    margin-bottom: 0.5rem;
-  }
-
-  .intro-sub {
-    font-size: 0.95rem;
-    letter-spacing: 0.2em;
-    color: var(--blue-light);
-    margin-bottom: 3rem;
-  }
-
-  .intro-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--gold);
-    margin-bottom: 1rem;
-  }
-
-  .intro-story {
-    max-width: 560px;
-    font-size: 1rem;
-    line-height: 1.8;
-    color: var(--muted);
-    margin-bottom: 2.5rem;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-  }
-
-  .intro-story em {
-    color: var(--text);
-    font-style: normal;
-  }
 
   .stage-list {
     display: flex;
@@ -1802,27 +1760,7 @@
 <div id="bg-layer"></div>
 
 <!-- ── INTRO ── -->
-<div id="intro">
-
-  <img src="logo.png" alt="EXEM" class="intro-logo-img">
-  <div class="intro-title">🔐 사무실을 탈출하라!</div>
-  <div class="intro-story">
-    <div class="intro-story-line"><em>2026년 3월, 입사 첫날.</em></div>
-    <div class="intro-story-line">동료들은 모두 퇴근하고 당신만 남겨졌는데…</div>
-    <div class="intro-story-line"><em>딸깍— 사무실 문이 잠겼습니다!</em></div>
-    <div class="intro-story-line">사방을 둘러보니 책상 위에 메모가 하나 있습니다.</div>
-    <div class="intro-story-line"><em>"엑셈의 핵심가치를 증명하면 탈출할 수 있다."</em></div>
-  </div>
-  <div class="stage-list">
-    <div class="stage-badge" data-name="책상 서랍">📁</div>
-    <div class="stage-badge" data-name="파일 캐비닛">🗄️</div>
-    <div class="stage-badge" data-name="컴퓨터">💻</div>
-    <div class="stage-badge" data-name="금고">🔒</div>
-    <div class="stage-badge" data-name="탈출 출구">🚪</div>
-  </div>
-  <button class="btn-start" onclick="startGame()">탈출 시작하기 →</button>
-
-</div>
+<div id="intro"></div>
 
 <!-- ── GAME ── -->
 <div id="game" style="display:none; width:100%; max-width:680px; padding:1rem 1rem 4rem; display:none; flex-direction:column; gap:1rem;">
@@ -2432,6 +2370,109 @@ let timerInterval = null;
 let secondsLeft = 600; // 10 minutes
 let startTime = null;
 let gameStarted = false;
+
+// ── INTRO CINEMATIC ──
+const introScenes = [
+  {
+    bg: '#000',
+    html: '<img src="logo.png" alt="EXEM" class="cinematic-logo">',
+    transition: 'fadeIn',
+    duration: 3000,
+    overlay: 'none',
+    effects: ['vignette']
+  },
+  {
+    bg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80',
+    text: '2026년 3월, 입사 첫날.\n\n퇴근 시간이 지났지만, 사무실에 혼자 남겨졌다.',
+    transition: 'blur',
+    duration: 4000,
+    textEffect: 'typewriter',
+    textSpeed: 35,
+    overlay: 'darker',
+    effects: ['vignette']
+  },
+  {
+    bg: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1920&q=80',
+    text: '책상 위에 놓인 메모 한 장이 눈에 들어온다.\n\n"엑셈의 핵심가치를 증명하라."',
+    transition: 'zoomIn',
+    duration: 4000,
+    textEffect: 'typewriter',
+    textSpeed: 35,
+    overlay: 'darker',
+    effects: ['vignette']
+  },
+  {
+    bg: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=1920&q=80',
+    text: '문을 열려 했지만—\n\n딸깍. 잠겨 있다.',
+    transition: 'slideLeft',
+    duration: 3500,
+    textEffect: 'typewriter',
+    textSpeed: 40,
+    overlay: 'darker',
+    effects: ['vignette', 'shake'],
+    shakeDelay: 2000
+  },
+  {
+    bg: 'https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1920&q=80',
+    text: 'EXEM의 핵심가치를 증명하면\n탈출할 수 있다.',
+    transition: 'glitch',
+    duration: 4000,
+    textEffect: 'fadeLines',
+    overlay: 'darker',
+    effects: ['vignette']
+  },
+  {
+    bg: 'radial-gradient(ellipse at 50% 30%, rgba(30,42,74,0.8) 0%, rgba(0,0,0,0.95) 70%)',
+    html: '<div class="cinematic-start-area"></div>',
+    transition: 'fadeIn',
+    duration: 999999,
+    interactive: true,
+    overlay: 'none',
+    effects: ['vignette', 'particles'],
+    onMount: function(content, overlay) {
+      const area = content.querySelector('.cinematic-start-area');
+      const icons = document.createElement('div');
+      icons.className = 'cinematic-stage-list';
+      const stageEmojis = ['📁', '🗄️', '💻', '🔒', '🚪'];
+      const stageNames = ['책상 서랍', '파일 캐비닛', '컴퓨터', '금고', '탈출 출구'];
+      stageEmojis.forEach((emoji, i) => {
+        const icon = document.createElement('div');
+        icon.className = 'cinematic-stage-icon';
+        icon.textContent = emoji;
+        icon.title = stageNames[i];
+        icons.appendChild(icon);
+        setTimeout(() => icon.classList.add('visible'), (i + 1) * 200);
+      });
+      area.appendChild(icons);
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-start';
+      btn.textContent = '탈출 시작하기 →';
+      btn.style.animation = 'btnPulse 2s ease-in-out infinite';
+      btn.style.opacity = '0';
+      btn.style.transition = 'opacity 0.5s ease';
+      btn.onclick = () => {
+        cinematicActive = false;
+        overlay.style.animation = 'cin-fadeOut 0.8s ease forwards';
+        setTimeout(() => {
+          overlay.remove();
+          startGame();
+        }, 800);
+      };
+      area.appendChild(btn);
+      setTimeout(() => { btn.style.opacity = '1'; }, 1200);
+    }
+  }
+];
+
+function showIntro() {
+  playCinematic(introScenes, null);
+}
+
+// Auto-play intro on page load
+document.addEventListener('DOMContentLoaded', () => {
+  showIntro();
+});
 
 // ── INIT ──
 function startGame() {
