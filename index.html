@@ -1409,6 +1409,38 @@
     width: 100%;
   }
 
+  /* Tension effects */
+  .tension-text {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    color: var(--red);
+    font-size: 0.85rem;
+    font-style: italic;
+    opacity: 0;
+    animation: tensionFade 3s ease forwards;
+    pointer-events: none;
+    text-align: center;
+    max-width: 300px;
+  }
+
+  @keyframes tensionFade {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .vignette-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+  }
+
   /* Responsive */
   @media (max-width: 480px) {
     .intro-title { font-size: 1.4rem; }
@@ -1778,6 +1810,23 @@ function hideHintButton() {
   hintPanelOpen = false;
 }
 
+// ── TENSION SYSTEM ──
+const tensionMessages = [
+  { at: 180, text: '어디선가 형광등이 깜빡입니다...' },
+  { at: 120, text: '복도 끝에서 이상한 소리가 들립니다...' },
+  { at: 60,  text: '형광등이 하나씩 꺼지기 시작합니다...' },
+  { at: 30,  text: '마지막 불빛마저 꺼지려 합니다!' }
+];
+let shownTension = new Set();
+
+function showTensionText(text) {
+  const el = document.createElement('div');
+  el.className = 'tension-text';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
 // ── GAME DATA ──
 const stages = [
   {
@@ -2125,6 +2174,28 @@ function updateTimer() {
   progress.classList.remove('warning', 'danger');
   if (secondsLeft <= 120) progress.classList.add('danger');
   else if (secondsLeft <= 180) progress.classList.add('warning');
+
+  // Tension messages
+  tensionMessages.forEach(msg => {
+    if (secondsLeft === msg.at && !shownTension.has(msg.at)) {
+      shownTension.add(msg.at);
+      showTensionText(msg.text);
+    }
+  });
+
+  // Darken background as time runs low
+  if (secondsLeft <= 180) {
+    const darkPct = Math.max(0, (180 - secondsLeft) / 180) * 0.3;
+    document.getElementById('bg-layer').style.opacity = 1 - darkPct;
+  }
+
+  // Add vignette at 60s
+  if (secondsLeft === 60 && !document.getElementById('vignetteOverlay')) {
+    const vig = document.createElement('div');
+    vig.className = 'vignette-overlay';
+    vig.id = 'vignetteOverlay';
+    document.body.appendChild(vig);
+  }
 }
 
 // ── CUTSCENE ──
