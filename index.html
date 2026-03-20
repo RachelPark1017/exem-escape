@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>EXEM 사무실 탈출 — 핵심가치 방탈출 게임</title>
 <style>
   @font-face {
@@ -1427,6 +1427,7 @@
     position: absolute;
     width: 100%;
     transition: transform 0.2s ease;
+    top: 60px;
   }
 
   .dial-char {
@@ -1469,6 +1470,7 @@
     cursor: pointer;
     font-size: 0.8rem;
     transition: all var(--transition-fast);
+    touch-action: manipulation;
   }
 
   .dial-arrow:hover { border-color: var(--blue); color: var(--blue); }
@@ -2518,7 +2520,7 @@ const introScenes = [
 ];
 
 function showIntro() {
-  playCinematic(introScenes, null);
+  playCinematic(introScenes, null, { skipToLast: true });
 }
 
 // Auto-play intro on page load
@@ -2886,7 +2888,20 @@ function playCinematic(scenes, callback, options = {}) {
   }
 
   // Skip button
-  skipBtn.onclick = closeCinematic;
+  skipBtn.onclick = () => {
+    if (options.skipToLast && currentScene < scenes.length - 1) {
+      if (sceneTimeout) { clearTimeout(sceneTimeout); sceneTimeout = null; }
+      if (particlesAnim) { cancelAnimationFrame(particlesAnim); particlesAnim = null; }
+      if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+      const oldScene = overlay.querySelector('.cinematic-scene');
+      if (oldScene) oldScene.remove();
+      currentScene = scenes.length - 1;
+      showScene(currentScene);
+      updateDots(currentScene);
+    } else {
+      closeCinematic();
+    }
+  };
 
   // Click/tap to advance scene
   overlay.addEventListener('click', (e) => {
@@ -3344,7 +3359,7 @@ function dialSpin(wheelIdx, direction) {
   const pos = dialPositions[wheelIdx];
 
   const track = document.getElementById(`dialTrack${wheelIdx}`);
-  track.style.transform = `translateY(-${pos * 40}px)`;
+  track.style.transform = `translateY(${-pos * 40}px)`;
 
   track.querySelectorAll('.dial-char').forEach((ch, i) => {
     ch.classList.toggle('active', i === pos);
