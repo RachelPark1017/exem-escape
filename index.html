@@ -112,19 +112,10 @@
 
   .stage-list {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
+    gap: 0.75rem;
+    margin: 1.5rem 0 2rem;
     flex-wrap: wrap;
     justify-content: center;
-  }
-
-  .stage-badge {
-    background: rgba(64,226,255,0.15);
-    border: 1px solid var(--blue);
-    border-radius: 20px;
-    padding: 0.3rem 0.8rem;
-    font-size: 0.8rem;
-    color: var(--blue-light);
   }
 
   .btn-start {
@@ -919,6 +910,84 @@
     to   { opacity: 0; }
   }
 
+  /* Cinematic Intro */
+  @keyframes glowPulse {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(64, 226, 255, 0.4)); }
+    50%      { filter: drop-shadow(0 0 24px rgba(64, 226, 255, 0.8)); }
+  }
+
+  @keyframes btnPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(64, 226, 255, 0.4); }
+    50%      { box-shadow: 0 0 0 12px rgba(64, 226, 255, 0); }
+  }
+
+  @keyframes introLineIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .intro-logo-img {
+    height: 60px;
+    margin-bottom: 0.5rem;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  .btn-start {
+    animation: btnPulse 2s ease-in-out infinite;
+  }
+
+  .intro-story-line {
+    opacity: 0;
+    animation: introLineIn 0.6s ease forwards;
+  }
+
+  .intro-story-line:nth-child(1) { animation-delay: 0.3s; }
+  .intro-story-line:nth-child(2) { animation-delay: 0.9s; }
+  .intro-story-line:nth-child(3) { animation-delay: 1.5s; }
+  .intro-story-line:nth-child(4) { animation-delay: 2.1s; }
+  .intro-story-line:nth-child(5) { animation-delay: 2.7s; }
+
+  /* Minimap-style stage badges */
+  .stage-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    font-size: 1.4rem;
+    cursor: default;
+    transition: all var(--transition-fast);
+    position: relative;
+    min-width: 48px;
+  }
+
+  .stage-badge::after {
+    content: attr(data-name);
+    font-size: 0.65rem;
+    color: var(--muted);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: all var(--transition-fast);
+    position: absolute;
+    bottom: -20px;
+    white-space: nowrap;
+  }
+
+  .stage-badge:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .stage-badge:hover {
+    border-color: var(--blue);
+    box-shadow: var(--glow-blue);
+    transform: translateY(-2px);
+  }
+
   /* Responsive */
   @media (max-width: 480px) {
     .intro-title { font-size: 1.4rem; }
@@ -957,21 +1026,21 @@
 <!-- ── INTRO ── -->
 <div id="intro">
 
-  <img src="logo.png" alt="EXEM" style="height:60px; margin-bottom:0.5rem;">
+  <img src="logo.png" alt="EXEM" class="intro-logo-img">
   <div class="intro-title">🔐 사무실을 탈출하라!</div>
   <div class="intro-story">
-    <em>2026년 3월, 입사 첫날.</em><br><br>
-    동료들은 모두 퇴근하고 당신만 남겨졌는데…<br><br>
-    <em>딸깍— 사무실 문이 잠겼습니다!</em><br><br>
-    사방을 둘러보니 책상 위에 메모가 하나 있습니다.<br>
-    <em>"엑셈의 핵심가치를 증명하면 탈출할 수 있다."</em>
+    <div class="intro-story-line"><em>2026년 3월, 입사 첫날.</em></div>
+    <div class="intro-story-line">동료들은 모두 퇴근하고 당신만 남겨졌는데…</div>
+    <div class="intro-story-line"><em>딸깍— 사무실 문이 잠겼습니다!</em></div>
+    <div class="intro-story-line">사방을 둘러보니 책상 위에 메모가 하나 있습니다.</div>
+    <div class="intro-story-line"><em>"엑셈의 핵심가치를 증명하면 탈출할 수 있다."</em></div>
   </div>
   <div class="stage-list">
-    <div class="stage-badge">📁 책상 서랍</div>
-    <div class="stage-badge">🗄️ 파일 캐비닛</div>
-    <div class="stage-badge">💻 컴퓨터</div>
-    <div class="stage-badge">🔒 금고</div>
-    <div class="stage-badge">🚪 탈출 출구</div>
+    <div class="stage-badge" data-name="책상 서랍">📁</div>
+    <div class="stage-badge" data-name="파일 캐비닛">🗄️</div>
+    <div class="stage-badge" data-name="컴퓨터">💻</div>
+    <div class="stage-badge" data-name="금고">🔒</div>
+    <div class="stage-badge" data-name="탈출 출구">🚪</div>
   </div>
   <button class="btn-start" onclick="startGame()">탈출 시작하기 →</button>
 
