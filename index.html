@@ -1441,6 +1441,69 @@
     box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
   }
 
+/* Grade badge */
+.grade-badge {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 900;
+  font-family: 'Unica 77 LL', sans-serif;
+  margin: 0 auto 1rem;
+  border: 3px solid;
+}
+
+.grade-S { color: #f59e0b; border-color: #f59e0b; box-shadow: 0 0 30px rgba(245,158,11,0.5); background: rgba(245,158,11,0.1); }
+.grade-A { color: #10b981; border-color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); }
+.grade-B { color: #40E2FF; border-color: #40E2FF; box-shadow: 0 0 15px rgba(64,226,255,0.3); background: rgba(64,226,255,0.1); }
+.grade-C { color: #94a3b8; border-color: #94a3b8; background: rgba(148,163,184,0.1); }
+
+.stage-graph { width: 100%; max-width: 400px; margin: 1.5rem auto; }
+
+.stage-bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+
+.stage-bar-label { font-size: 0.75rem; color: var(--muted); width: 70px; text-align: right; flex-shrink: 0; }
+
+.stage-bar-track { flex: 1; height: 12px; background: var(--surface2); border-radius: 6px; overflow: hidden; }
+
+.stage-bar-fill { height: 100%; border-radius: 6px; transition: width 1s ease; background: linear-gradient(90deg, var(--blue), var(--green)); }
+
+.stage-bar-pct { font-size: 0.75rem; color: var(--text); width: 35px; font-weight: 700; }
+
+.epilogue {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  max-width: 520px;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.special-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.badge-solo {
+  background: rgba(245,158,11,0.15);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
   /* Responsive */
   @media (max-width: 480px) {
     .intro-title { font-size: 1.4rem; }
@@ -1561,9 +1624,9 @@
 
 <!-- ── ENDING ── -->
 <div id="ending" style="display:none; width:100%; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; background:radial-gradient(ellipse at 50% 30%, #0d2a1a 0%, #0f0f1a 70%);">
-  <div class="ending-icon">🎉</div>
-  <div class="ending-title">탈출 성공!</div>
-  <div class="ending-sub">당신은 진정한 엑셈인입니다</div>
+  <div class="grade-badge" id="gradeBadge">S</div>
+  <div class="ending-title" id="endTitle">탈출 성공!</div>
+  <div class="ending-sub" id="endSub">당신은 진정한 엑셈인입니다</div>
 
   <div class="ending-stats">
     <div class="stat-box">
@@ -1578,12 +1641,23 @@
       <div class="stat-value" id="endCorrect">—</div>
       <div class="stat-label">정답률</div>
     </div>
+    <div class="stat-box">
+      <div class="stat-value" id="endHints">—</div>
+      <div class="stat-label">힌트 사용</div>
+    </div>
+  </div>
+
+  <div class="stage-graph" id="stageGraph"></div>
+  <div id="specialBadges"></div>
+
+  <div class="epilogue" id="epilogue">
+    다음 날 아침, 사무실 문이 열렸습니다.<br><br>
+    어젯밤의 도전이 꿈이었을까? 하지만 책상 위 메모는 여전히 남아있습니다:<br><br>
+    <strong style="color:#e2e8f0;">"오늘부터 당신은 엑셈인입니다."</strong><br><br>
+    전개일여(全個一如) — 당신의 성장이 곧 엑셈의 성장입니다.
   </div>
 
   <div class="ending-message">
-    엑셈의 핵심가치를 모두 증명했습니다!<br><br>
-    오늘 배운 것들을 실제 업무에서 실천해보세요.<br>
-    <strong style="color:#e2e8f0;">전개일여(全個一如)</strong> — 당신의 성장이 엑셈의 성장입니다.
     <div class="values-summary">
       <div class="value-tag">전개일여</div>
       <div class="value-tag">Passion</div>
@@ -2085,6 +2159,7 @@ let currentQuiz = 0;
 let score = 0;
 let totalAttempts = 0;
 let totalCorrect = 0;
+let stageStats = [];
 let timerInterval = null;
 let secondsLeft = 600; // 10 minutes
 let startTime = null;
@@ -2109,6 +2184,8 @@ function startGame() {
   overallEl.innerHTML = stages.map((_, i) =>
     `<div class="progress-dot" id="progressDot${i}"></div>`
   ).join('');
+
+  stageStats = stages.map(() => ({ correct: 0, total: 0 }));
 
   startTime = Date.now();
   startTimer();
@@ -2384,6 +2461,8 @@ function loadQuiz(stageIdx, quizIdx) {
 
 function showFeedback(isCorrect, message, quizIdx, stageIdx) {
   totalAttempts++;
+  stageStats[stageIdx].total++;
+  if (isCorrect) stageStats[stageIdx].correct++;
   if (isCorrect) {
     totalCorrect++;
     score += 100;
@@ -2732,12 +2811,12 @@ function showEnding(timeout) {
   clearInterval(timerInterval);
   hideHintButton();
 
+  document.getElementById('vignetteOverlay')?.remove();
+  document.getElementById('bg-layer').style.opacity = 1;
+
   document.getElementById('game').style.display = 'none';
   const endingEl = document.getElementById('ending');
   endingEl.style.display = 'flex';
-  endingEl.style.flexDirection = 'column';
-  endingEl.style.alignItems = 'center';
-  endingEl.style.justifyContent = 'center';
 
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
   const em = Math.floor(elapsed / 60);
@@ -2746,13 +2825,48 @@ function showEnding(timeout) {
   document.getElementById('endScore').textContent = score + '점';
   const pct = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
   document.getElementById('endCorrect').textContent = `${pct}%`;
+  document.getElementById('endHints').textContent = `${totalHintsUsed}회`;
+
+  let grade = 'C';
+  if (pct >= 95 && totalHintsUsed === 0 && elapsed <= 300) grade = 'S';
+  else if (pct >= 80 && totalHintsUsed <= 3) grade = 'A';
+  else if (pct >= 60) grade = 'B';
+
+  const gradeBadge = document.getElementById('gradeBadge');
+  gradeBadge.textContent = grade;
+  gradeBadge.className = `grade-badge grade-${grade}`;
+
+  const graphEl = document.getElementById('stageGraph');
+  graphEl.innerHTML = stageStats.map((s, i) => {
+    const stagePct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+    return `<div class="stage-bar-row">
+      <div class="stage-bar-label">${stages[i].icon} ${stages[i].title}</div>
+      <div class="stage-bar-track"><div class="stage-bar-fill" style="width:0%;" data-pct="${stagePct}"></div></div>
+      <div class="stage-bar-pct">${stagePct}%</div>
+    </div>`;
+  }).join('');
+
+  setTimeout(() => {
+    graphEl.querySelectorAll('.stage-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.pct + '%';
+    });
+  }, 100);
+
+  const badgesEl = document.getElementById('specialBadges');
+  let badges = [];
+  if (totalHintsUsed === 0) badges.push('<span class="special-badge badge-solo">🏆 독립 탈출</span>');
+  badgesEl.innerHTML = badges.join('');
 
   if (timeout) {
-    document.querySelector('.ending-title').textContent = '시간 초과!';
-    document.querySelector('.ending-icon').textContent = '⏰';
-    document.querySelector('.ending-sub').textContent = '아쉽지만 다시 도전해보세요';
-    document.querySelector('.ending-sub').style.color = '#f59e0b';
+    document.getElementById('endTitle').textContent = '시간 초과!';
+    gradeBadge.textContent = '⏰';
+    gradeBadge.className = 'grade-badge grade-C';
+    document.getElementById('endSub').textContent = '아쉽지만 다시 도전해보세요';
+    document.getElementById('endSub').style.color = '#f59e0b';
+    document.getElementById('epilogue').innerHTML = '시간이 다 되어 사무실 보안 시스템이 작동했습니다.<br><br>하지만 걱정 마세요 — 내일 다시 도전할 수 있습니다.<br><br><strong style="color:#e2e8f0;">"포기하지 않는 것이 엑셈인의 첫 번째 자질입니다."</strong>';
   }
+
+  spawnConfetti(80);
 }
 
 function restartGame() {
