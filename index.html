@@ -1507,9 +1507,24 @@
   /* Responsive */
   @media (max-width: 480px) {
     .intro-title { font-size: 1.4rem; }
-    .intro-logo { font-size: 2.2rem; }
-    .ox-btn { font-size: 1.5rem; }
     .game-header { flex-wrap: wrap; gap: 0.5rem; }
+    .match-container { grid-template-columns: 1fr; gap: 0.75rem; }
+    .match-arrow-col { display: none; }
+    .dial-container { gap: 0.3rem; }
+    .dial-wheel { width: 48px; height: 140px; }
+    .stage-graph { padding: 0 0.5rem; }
+    .ending-stats { gap: 0.75rem; }
+    .stat-box { padding: 0.75rem 1rem; }
+    .cutscene-text { font-size: 0.95rem; }
+    .hint-panel { max-height: 60vh; }
+    .timer-circle { width: 48px; height: 48px; }
+    .timer-circle svg { width: 48px; height: 48px; }
+    .ox-btn { font-size: 1.5rem; }
+  }
+
+  @media (max-width: 360px) {
+    .stage-badge { min-width: 40px; padding: 0.4rem; font-size: 1.2rem; }
+    .office-map { display: none; }
   }
 
   /* ── STAGE BACKGROUND ── */
@@ -2870,6 +2885,13 @@ function showEnding(timeout) {
 }
 
 function restartGame() {
+  hintState = {};
+  totalHintsUsed = 0;
+  hintPanelOpen = false;
+  shownTension = new Set();
+  dialPositions = [];
+  document.getElementById('vignetteOverlay')?.remove();
+  document.getElementById('bg-layer').style.opacity = 1;
   location.reload();
 }
 </script>
