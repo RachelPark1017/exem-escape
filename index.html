@@ -2543,38 +2543,287 @@ function updateTimer() {
   }
 }
 
-// ── CUTSCENE ──
-function showCutscene(text, callback) {
+// ── CINEMATIC ENGINE ──
+let cinematicActive = false;
+let cinematicCleanup = null;
+
+function playCinematic(scenes, callback, options = {}) {
+  if (cinematicActive) return;
+  cinematicActive = true;
+
   const overlay = document.createElement('div');
-  overlay.className = 'cutscene-overlay';
+  overlay.className = 'cinematic-overlay';
 
-  const textEl = document.createElement('div');
-  textEl.className = 'cutscene-text';
-  overlay.appendChild(textEl);
-
+  // Skip button
   const skipBtn = document.createElement('button');
-  skipBtn.className = 'cutscene-skip';
-  skipBtn.textContent = '건너뛰기 →';
+  skipBtn.className = 'cinematic-skip';
+  skipBtn.textContent = '건너뛰기 >>';
   overlay.appendChild(skipBtn);
+
+  // Progress dots
+  const dots = document.createElement('div');
+  dots.className = 'cinematic-dots';
+  scenes.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'cinematic-dot' + (i === 0 ? ' active' : '');
+    dots.appendChild(dot);
+  });
+  overlay.appendChild(dots);
 
   document.body.appendChild(overlay);
 
-  typeText(textEl, text, 30);
+  let currentScene = 0;
+  let sceneTimeout = null;
+  let particlesCtx = null;
+  let particlesAnim = null;
+  let particles = [];
 
-  let closed = false;
-  function closeCutscene() {
-    if (closed) return;
-    closed = true;
-    overlay.style.animation = 'fadeOut 0.4s ease forwards';
-    setTimeout(() => {
-      overlay.remove();
-      callback();
-    }, 400);
+  function updateDots(idx) {
+    const allDots = dots.querySelectorAll('.cinematic-dot');
+    allDots.forEach((d, i) => {
+      d.className = 'cinematic-dot';
+      if (i < idx) d.classList.add('done');
+      else if (i === idx) d.classList.add('active');
+    });
   }
 
-  skipBtn.onclick = closeCutscene;
-  setTimeout(() => { textEl.onclick = closeCutscene; }, text.length * 30 + 500);
-  setTimeout(closeCutscene, Math.max(text.length * 35 + 2000, 5000));
+  function createParticles(container) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'cinematic-particles';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    container.appendChild(canvas);
+    particlesCtx = canvas.getContext('2d');
+    particles = [];
+    for (let i = 0; i < 25; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 0.5,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.3 - 0.2,
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+    function animParticles() {
+      particlesCtx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        particlesCtx.beginPath();
+        particlesCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        particlesCtx.fillStyle = `rgba(64, 226, 255, ${p.alpha})`;
+        particlesCtx.fill();
+      });
+      particlesAnim = requestAnimationFrame(animParticles);
+    }
+    animParticles();
+  }
+
+  function applyTextEffect(container, text, effect, speed) {
+    if (effect === 'fadeLines') {
+      const lines = text.split('\n').filter(l => l.trim());
+      container.innerHTML = '';
+      lines.forEach((line, i) => {
+        const lineEl = document.createElement('div');
+        lineEl.className = 'cinematic-text-line';
+        lineEl.textContent = line;
+        container.appendChild(lineEl);
+        setTimeout(() => lineEl.classList.add('visible'), (i + 1) * 400);
+      });
+    } else if (effect === 'reveal') {
+      container.style.clipPath = 'inset(0 100% 0 0)';
+      container.textContent = text;
+      container.style.opacity = '1';
+      container.style.transition = 'clip-path 1.2s ease';
+      requestAnimationFrame(() => {
+        container.style.clipPath = 'inset(0 0% 0 0)';
+      });
+    } else {
+      // typewriter (default)
+      typeText(container, text, speed || 30);
+    }
+  }
+
+  function getTransitionIn(type) {
+    const map = {
+      fadeIn: 'cin-fadeIn 0.8s ease forwards',
+      slideLeft: 'cin-slideLeft 0.6s ease forwards',
+      zoomIn: 'cin-zoomIn 0.8s ease forwards',
+      blur: 'cin-blur 1s ease forwards',
+      glitch: 'cin-glitch 0.8s ease forwards'
+    };
+    return map[type] || map.fadeIn;
+  }
+
+  function getTransitionOut(type) {
+    const map = {
+      fadeIn: 'cin-fadeOut 0.5s ease forwards',
+      slideLeft: 'cin-slideLeftOut 0.5s ease forwards',
+      zoomIn: 'cin-zoomInOut 0.5s ease forwards',
+      blur: 'cin-blurOut 0.5s ease forwards',
+      glitch: 'cin-fadeOut 0.4s ease forwards'
+    };
+    return map[type] || map.fadeIn;
+  }
+
+  function showScene(idx) {
+    if (idx >= scenes.length) {
+      closeCinematic();
+      return;
+    }
+
+    currentScene = idx;
+    updateDots(idx);
+
+    const scene = scenes[idx];
+    const sceneEl = document.createElement('div');
+    sceneEl.className = 'cinematic-scene';
+
+    // Background
+    if (scene.bg) {
+      const bg = document.createElement('div');
+      bg.className = 'cinematic-bg';
+      if (scene.bg.startsWith('http') || scene.bg.startsWith('/') || scene.bg.startsWith('.')) {
+        bg.style.backgroundImage = `url('${scene.bg}')`;
+      } else {
+        bg.style.background = scene.bg;
+      }
+      sceneEl.appendChild(bg);
+
+      // Dark overlay
+      const bgOverlay = document.createElement('div');
+      bgOverlay.className = 'cinematic-bg-overlay ' + (scene.overlay || 'dark');
+      sceneEl.appendChild(bgOverlay);
+    }
+
+    // Vignette
+    if (!scene.effects || scene.effects.includes('vignette')) {
+      const vig = document.createElement('div');
+      vig.className = 'cinematic-vignette';
+      sceneEl.appendChild(vig);
+    }
+
+    // Particles
+    if (scene.effects && scene.effects.includes('particles')) {
+      createParticles(sceneEl);
+    }
+
+    // Content
+    const content = document.createElement('div');
+    content.className = 'cinematic-content';
+
+    // Custom HTML content (for intro scenes with logo, buttons, etc.)
+    if (scene.html) {
+      content.innerHTML = scene.html;
+      sceneEl.appendChild(content);
+      overlay.appendChild(sceneEl);
+      sceneEl.style.animation = getTransitionIn(scene.transition);
+
+      // Initialize elements within custom HTML
+      if (scene.onMount) {
+        setTimeout(() => scene.onMount(content, overlay), 100);
+      }
+
+      // No auto-advance for interactive scenes (like start button)
+      if (scene.interactive) return;
+    } else if (scene.text) {
+      const textEl = document.createElement('div');
+      textEl.className = 'cinematic-text';
+      content.appendChild(textEl);
+      sceneEl.appendChild(content);
+      overlay.appendChild(sceneEl);
+      sceneEl.style.animation = getTransitionIn(scene.transition);
+
+      // Apply text effect
+      setTimeout(() => {
+        applyTextEffect(textEl, scene.text, scene.textEffect, scene.textSpeed);
+      }, 300);
+    } else {
+      sceneEl.appendChild(content);
+      overlay.appendChild(sceneEl);
+      sceneEl.style.animation = getTransitionIn(scene.transition);
+    }
+
+    // Shake effect
+    if (scene.effects && scene.effects.includes('shake')) {
+      setTimeout(() => {
+        sceneEl.style.animation = 'cin-shake 0.5s ease';
+        setTimeout(() => {
+          sceneEl.style.animation = '';
+          sceneEl.style.opacity = '1';
+        }, 500);
+      }, scene.shakeDelay || 1500);
+    }
+
+    // Auto-advance
+    const duration = scene.duration || 3500;
+    sceneTimeout = setTimeout(() => {
+      advanceScene(sceneEl, scene);
+    }, duration);
+  }
+
+  function advanceScene(sceneEl, scene) {
+    if (sceneTimeout) { clearTimeout(sceneTimeout); sceneTimeout = null; }
+    if (particlesAnim) { cancelAnimationFrame(particlesAnim); particlesAnim = null; }
+
+    sceneEl.style.animation = getTransitionOut(scene.transition);
+    setTimeout(() => {
+      sceneEl.remove();
+      showScene(currentScene + 1);
+    }, 500);
+  }
+
+  function closeCinematic() {
+    if (!cinematicActive) return;
+    cinematicActive = false;
+    if (sceneTimeout) { clearTimeout(sceneTimeout); sceneTimeout = null; }
+    if (particlesAnim) { cancelAnimationFrame(particlesAnim); particlesAnim = null; }
+    if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+
+    overlay.style.animation = 'cin-fadeOut 0.5s ease forwards';
+    setTimeout(() => {
+      overlay.remove();
+      if (callback) callback();
+    }, 500);
+  }
+
+  // Skip button
+  skipBtn.onclick = closeCinematic;
+
+  // Click/tap to advance scene
+  overlay.addEventListener('click', (e) => {
+    if (e.target === skipBtn || e.target.closest('.cinematic-skip')) return;
+    if (e.target.closest('.btn-start') || e.target.closest('.cinematic-stage-icon')) return;
+
+    const currentSceneEl = overlay.querySelector('.cinematic-scene');
+    if (currentSceneEl && currentScene < scenes.length) {
+      const scene = scenes[currentScene];
+      if (scene.interactive) return;
+      advanceScene(currentSceneEl, scene);
+    }
+  });
+
+  cinematicCleanup = closeCinematic;
+
+  // Start first scene
+  showScene(0);
+}
+
+// Legacy wrapper for backward compatibility
+function showCutscene(text, callback) {
+  const scenes = [{
+    text: text,
+    transition: 'fadeIn',
+    duration: Math.max(text.length * 35 + 2000, 5000),
+    textEffect: 'typewriter',
+    overlay: 'dark'
+  }];
+  playCinematic(scenes, callback);
 }
 
 // ── STAGE ──
