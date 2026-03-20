@@ -1505,6 +1505,82 @@
   color: var(--gold);
 }
 
+/* ── TOGGLE PUZZLE ── */
+.toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  transition: all var(--transition-fast);
+}
+
+.toggle-text {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.toggle-switch {
+  width: 52px;
+  height: 28px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-switch::after {
+  content: '✕';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.toggle-switch.on {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.toggle-switch.on::after {
+  content: '○';
+  left: 26px;
+  background: var(--green);
+}
+
+.btn-toggle-submit {
+  margin-top: 0.75rem;
+  padding: 0.85rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--blue);
+  color: #0a0a1a;
+  font-weight: 700;
+  width: 100%;
+  cursor: pointer;
+}
+
   /* Responsive */
   @media (max-width: 480px) {
     .intro-title { font-size: 1.4rem; }
@@ -1926,12 +2002,11 @@ const stages = [
     hint: '💡 힌트: 두 메모를 조합하면 서랍 자물쇠 2자리 조합을 알 수 있습니다',
     quizzes: [
       {
-        type: 'fill',
+        type: 'dial',
         badge: '🔍 메모 1 해독',
-        question: '[메모 1]이 서랍 자물쇠의 첫 번째 암호입니다.\n\nEXEM = "Expert ___"\n\n"제국"을 뜻하는 영어 단어를 입력하세요.',
+        question: '[메모 1]이 서랍 자물쇠의 첫 번째 암호입니다.\n\nEXEM = "Expert ___"\n\n"제국"을 뜻하는 영어 단어를 다이얼로 맞추세요.',
         answer: 'empire',
-        displayAnswer: 'Empire',
-        hint: '',
+        charset: 'abcdefghijklmnopqrstuvwxyz',
         feedbackCorrect: '✓ 딸깍— 첫 번째 자물쇠가 풀렸습니다! EXEM = Expert Empire, 전문가 제국.',
         feedbackWrong: '💡 EXEM의 풀네임을 생각해보세요. Expert + ___ — "제국"을 영어로?',
         hints: [
@@ -1967,17 +2042,20 @@ const stages = [
     cutscene: '서랍에서 찾은 단서 카드를 손에 쥐고 일어섰습니다.\n\n사무실 구석, 파일 캐비닛의 금속 표면이 희미하게 빛납니다.\n\n발걸음을 옮기자 복도의 형광등이 한 번 깜빡입니다...',
     quizzes: [
       {
-        type: 'choice',
+        type: 'match',
         badge: '🗂️ 인터뷰 카드 1',
-        question: '[인터뷰 카드 1]\n\n"저는 재미있는 프로젝트가 있거나, 좋은 팀원이 있을 때\n정말 열심히 합니다. 하지만 그런 조건이 없으면\n스스로 동기부여가 잘 안 됩니다."\n\n이 직원은 캐비닛의 세 불꽃 중 어느 유형일까요?',
-        options: ['🔥 자연성 — 스스로 불타는 유형', '🕯 가연성 — 조건이 맞으면 불타는 유형', '🪨 불연성 — 불타지 않는 유형', '💥 폭발성 — 순간적으로 타오르는 유형'],
-        answer: 1,
-        feedbackCorrect: '✓ 정답! 조건이 갖춰질 때 타오르는 가연성입니다. 첫 번째 자물쇠 해제!',
-        feedbackWrong: '💡 인터뷰를 다시 읽어보세요. "조건이 없으면 스스로 동기부여가 안 된다" — 세 불꽃 중 어느 유형일까요?',
+        question: '[인터뷰 카드 1]\n\n캐비닛에 새겨진 세 가지 불꽃 유형과 그 특성을 올바르게 연결하세요.',
+        pairs: [
+          { left: '🔥 자연성', right: '스스로 불타오르는 유형' },
+          { left: '🕯 가연성', right: '조건이 맞으면 타오르는 유형' },
+          { left: '🪨 불연성', right: '불을 갖다 대도 타지 않는 유형' }
+        ],
+        feedbackCorrect: '✓ 정답! 열정의 세 가지 유형을 모두 맞췄습니다. 첫 번째 자물쇠 해제!',
+        feedbackWrong: '💡 각 불꽃의 특성을 다시 읽어보세요. 스스로 타는 것, 조건이 필요한 것, 타지 않는 것.',
         hints: [
           { level: 1, text: '세 종류의 불꽃 유형을 떠올려보세요.', cost: 0 },
-          { level: 2, text: '"조건이 없으면 동기부여가 안 된다" — 스스로 타는 게 아닙니다.', cost: 50 },
-          { level: 3, text: '정답: 가연성 — 불을 갖다 대면 타오르는 유형', cost: 100 }
+          { level: 2, text: '자연성=스스로, 가연성=조건, 불연성=안탐', cost: 50 },
+          { level: 3, text: '자연성↔스스로, 가연성↔조건이 맞으면, 불연성↔타지 않는', cost: 100 }
         ]
       },
       {
@@ -2006,17 +2084,21 @@ const stages = [
     cutscene: '캐비닛에서 찾은 카드 3장을 주머니에 넣었습니다.\n\n책상 위 컴퓨터 화면이 대기 모드로 깜빡이고 있습니다.\n\n비밀번호 입력창이 당신을 기다리고 있습니다...',
     quizzes: [
       {
-        type: 'scenario',
+        type: 'order',
         badge: '💾 카드 A 해독',
-        question: '[카드 A] 실제 상황:\n\n김 대리는 2주짜리 보고서를 혼자 완성한 뒤 팀장에게 제출했습니다.\n팀장은 한마디: "방향이 완전히 달라. 처음부터 다시 해야겠어."\n\n엑셈의 Speed 원칙을 따랐다면, 언제 처음 방향을 공유했을까요?',
-        options: ['완전히 완성한 후 (100%)', '절반 정도 됐을 때 (50%)', '방향만 잡았을 때 (10%)', '팀장이 먼저 물어봤을 때'],
-        answer: 2,
-        feedbackCorrect: '✓ 1번 비밀번호 입력! 10% 시점에 공유해야 잘못된 방향으로 100%를 낭비하지 않습니다.',
-        feedbackWrong: '💡 김 대리가 2주를 낭비한 이유를 생각해보세요. Speed라면 언제 방향을 확인해야 했을까요?',
+        question: '[카드 A] 엑셈의 Speed 원칙에 따른 업무 공유 순서를 올바르게 배열하세요.\n\n가장 먼저 할 것부터 순서대로 정렬하세요.',
+        items: [
+          '방향이 10%만 잡혔을 때 공유한다',
+          '50% 진행 시점에 중간 점검한다',
+          '90% 완성 시점에 최종 확인한다',
+          '100% 완성 후 결과를 보고한다'
+        ],
+        feedbackCorrect: '✓ 1번 비밀번호 입력! 10% → 50% → 90% → 100% 순서로 공유해야 잘못된 방향으로 낭비하지 않습니다.',
+        feedbackWrong: '💡 Speed의 핵심은 일찍, 자주 공유하는 것입니다. 가장 먼저 공유해야 하는 시점은?',
         hints: [
           { level: 1, text: 'Speed의 핵심은 공유 시점입니다.', cost: 0 },
           { level: 2, text: '카드 A를 다시 읽어보세요: "10%만 됐을 때..."', cost: 50 },
-          { level: 3, text: '정답: 방향만 잡았을 때 (10%)', cost: 100 }
+          { level: 3, text: '정답: 10% → 50% → 90% → 100% 순서', cost: 100 }
         ]
       },
       {
@@ -2116,18 +2198,18 @@ const stages = [
     cutscene: '금고에서 꺼낸 열쇠를 꽉 쥐고 출구로 달려갑니다.\n\n복도 끝, 마지막 문 앞에 도착했습니다.\n\n열쇠를 넣으려는 순간 — 마지막 잠금장치가 보입니다...',
     quizzes: [
       {
-        type: 'choice',
+        type: 'toggle',
         badge: '🚪 카드 1 잠금',
-        question: '[카드 1] 잠금 다이얼:\n\n"매일 스스로에게 물어야 할 3가지 질문"이 조합입니다.\n아래 중 엑셈 생활규칙 3가지를 올바르게 나열한 것은?',
-        options: [
-          '① 조언을 구하고 있나요?  ② 조언을 해주고 있나요?  ③ 친구를 만들고 있나요?',
-          '① 성과를 내고 있나요?  ② 배우고 있나요?  ③ 성장하고 있나요?',
-          '① 협력하고 있나요?  ② 소통하고 있나요?  ③ 투명하게 공유하나요?',
-          '① 열정이 있나요?  ② 빠르게 하나요?  ③ 몰입하고 있나요?'
+        question: '[카드 1] 잠금 다이얼:\n\n아래 항목 중 엑셈의 "매일 스스로에게 물어야 할 3가지 질문"에 해당하는 것만 O로 켜세요.',
+        statements: [
+          { text: '조언을 구하고 있나요?', correct: true },
+          { text: '성과를 내고 있나요?', correct: false },
+          { text: '조언을 해주고 있나요?', correct: true },
+          { text: '빠르게 하고 있나요?', correct: false },
+          { text: '친구를 만들고 있나요?', correct: true }
         ],
-        answer: 0,
         feedbackCorrect: '✓ 맞습니다! 조언 구하기 · 조언 해주기 · 친구 만들기 — 카드 1 해제!',
-        feedbackWrong: '💡 세 질문 모두 관계와 성장에 관한 것입니다. 조언을 주고받고, 그리고 ___을 만드는 것 — 다시 찾아보세요.',
+        feedbackWrong: '💡 세 질문 모두 관계와 성장에 관한 것입니다. 조언을 주고받고, 그리고 ___을 만드는 것.',
         hints: [
           { level: 1, text: '세 가지 모두 관계와 성장에 관한 질문입니다.', cost: 0 },
           { level: 2, text: '조언을 ___? 조언을 ___? ___를 만들고 있나요?', cost: 50 },
@@ -2463,6 +2545,19 @@ function loadQuiz(stageIdx, quizIdx) {
     initDialTouch();
   }
 
+  else if (quiz.type === 'toggle') {
+    area.innerHTML = `
+      <div class="toggle-list">
+        ${quiz.statements.map((s, i) => `
+          <div class="toggle-row">
+            <div class="toggle-text">${s.text}</div>
+            <button class="toggle-switch" id="toggle${i}" data-idx="${i}" data-on="false" onclick="toggleSwitch(${i})"></button>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn-toggle-submit" onclick="answerToggle()">확인</button>`;
+  }
+
   // Reset feedback
   const fb = document.getElementById('quizFeedback');
   fb.className = 'feedback';
@@ -2753,6 +2848,28 @@ function answerDial() {
 
   showFeedback(isCorrect,
     isCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
+    currentQuiz, currentStage);
+}
+
+// ── TOGGLE PUZZLE ──
+function toggleSwitch(idx) {
+  const btn = document.getElementById(`toggle${idx}`);
+  const isOn = btn.dataset.on === 'true';
+  btn.dataset.on = (!isOn).toString();
+  btn.classList.toggle('on', !isOn);
+}
+
+function answerToggle() {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  let allCorrect = true;
+  quiz.statements.forEach((s, i) => {
+    const btn = document.getElementById(`toggle${i}`);
+    const userAnswer = btn.dataset.on === 'true';
+    if (userAnswer !== s.correct) allCorrect = false;
+  });
+
+  showFeedback(allCorrect,
+    allCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
     currentQuiz, currentStage);
 }
 
