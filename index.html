@@ -1193,6 +1193,222 @@
     animation: scoreDeduct 1s ease-out forwards;
   }
 
+  /* ── MATCH PUZZLE ── */
+  .match-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.5rem;
+    align-items: start;
+  }
+
+  .match-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .match-item {
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.85rem;
+    cursor: grab;
+    transition: all var(--transition-fast);
+    user-select: none;
+    touch-action: none;
+  }
+
+  .match-item:active { cursor: grabbing; }
+  .match-item.dragging { opacity: 0.5; transform: scale(0.95); }
+  .match-item.drag-over { border-color: var(--blue); background: rgba(64, 226, 255, 0.1); }
+  .match-item.matched-correct { border-color: var(--green); background: rgba(16, 185, 129, 0.1); }
+  .match-item.matched-wrong { border-color: var(--red); background: rgba(239, 68, 68, 0.1); }
+
+  .match-arrow-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    color: var(--border);
+    font-size: 1.2rem;
+  }
+
+  .match-slot {
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 2px dashed var(--border);
+    background: transparent;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+    transition: all var(--transition-fast);
+  }
+
+  .match-slot.drag-over { border-color: var(--blue); background: rgba(64, 226, 255, 0.05); }
+  .match-slot.filled { border-style: solid; }
+
+  .btn-match-submit {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+    padding: 0.85rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: #0a0a1a;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  /* ── ORDER PUZZLE ── */
+  .order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .order-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    transition: all var(--transition-fast);
+  }
+
+  .order-item:active { cursor: grabbing; }
+  .order-item.dragging { opacity: 0.5; }
+  .order-item.drag-over { border-color: var(--blue); transform: translateY(2px); }
+
+  .order-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .order-text { font-size: 0.85rem; color: var(--text); }
+
+  .btn-order-submit {
+    margin-top: 0.75rem;
+    padding: 0.85rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: #0a0a1a;
+    font-weight: 700;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  /* ── DIAL PUZZLE ── */
+  .dial-container {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+  }
+
+  .dial-wheel {
+    width: 56px;
+    height: 160px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+    position: relative;
+    touch-action: none;
+  }
+
+  .dial-track {
+    position: absolute;
+    width: 100%;
+    transition: transform 0.2s ease;
+  }
+
+  .dial-char {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--muted);
+    font-family: 'Unica 77 LL', monospace;
+  }
+
+  .dial-char.active { color: var(--blue); font-size: 1.5rem; }
+
+  .dial-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 42px;
+    border-top: 2px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
+    background: rgba(64, 226, 255, 0.05);
+    pointer-events: none;
+  }
+
+  .dial-arrow {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all var(--transition-fast);
+  }
+
+  .dial-arrow:hover { border-color: var(--blue); color: var(--blue); }
+
+  .dial-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .btn-dial-submit {
+    margin-top: 1rem;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: #0a0a1a;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+  }
+
   /* Responsive */
   @media (max-width: 480px) {
     .intro-title { font-size: 1.4rem; }
@@ -1705,17 +1921,20 @@ const stages = [
     cutscene: '컴퓨터 화면에 나타난 지도를 따라 책장 뒤로 향합니다.\n\n무거운 책장을 밀자 — 먼지가 날리며 금고가 드러났습니다.\n\n세 개의 버튼이 차가운 금속 위에서 빛나고 있습니다...',
     quizzes: [
       {
-        type: 'scenario',
+        type: 'match',
         badge: '🔐 [Work] 버튼',
-        question: '[Work 버튼 카드]\n\n신입 정 씨, 퇴근 시간 30분 초과.\n오늘 맡은 고객 이슈가 아직 해결 중입니다.\n팀장은 "내일 해도 된다"고 했습니다.\n\n엑셈의 Work — "책임의식"을 가진 정 씨라면?',
-        options: ['팀장 말대로 내일로 미룬다', '고객이 기다리고 있다면 해결하고 퇴근한다', '팀장에게 다시 한번 확인을 요청한다', '동료에게 넘기고 퇴근한다'],
-        answer: 1,
-        feedbackCorrect: '✓ 정답! 책임의식 = 맡은 일은 끝까지. [Work] 버튼이 눌렸습니다!',
-        feedbackWrong: '💡 Work의 핵심은 "책임의식"입니다. 고객이 기다리고 있다면, 내가 맡은 일은 어떻게 해야 할까요?',
+        question: '금고의 첫 번째 버튼을 열려면 핵심가치와 그 핵심 원칙을 올바르게 연결하세요.',
+        pairs: [
+          { left: 'Work', right: '책임의식 · 성취추구' },
+          { left: 'Relationship', right: '협력 · 수용' },
+          { left: 'Communication', right: '투명성 · 진정성' }
+        ],
+        feedbackCorrect: '✓ 완벽한 매칭! [Work] 버튼이 눌렸습니다!',
+        feedbackWrong: '💡 각 핵심가치의 핵심 원칙을 다시 떠올려보세요.',
         hints: [
-          { level: 1, text: 'Work의 핵심 키워드를 생각해보세요.', cost: 0 },
-          { level: 2, text: '고객이 기다리고 있다면, 맡은 일에 대한 태도는?', cost: 50 },
-          { level: 3, text: '정답: 고객이 기다리고 있다면 해결하고 퇴근한다', cost: 100 }
+          { level: 1, text: '세 쌍을 올바르게 연결해야 합니다.', cost: 0 },
+          { level: 2, text: 'Work=책임의식, Relationship=수용, Communication=투명성', cost: 50 },
+          { level: 3, text: 'Work↔책임의식·성취추구, Relationship↔협력·수용, Communication↔투명성·진정성', cost: 100 }
         ]
       },
       {
@@ -2026,6 +2245,60 @@ function loadQuiz(stageIdx, quizIdx) {
     setTimeout(() => document.getElementById('fillInput')?.focus(), 100);
   }
 
+  else if (quiz.type === 'match') {
+    const shuffledRight = [...quiz.pairs].sort(() => Math.random() - 0.5);
+    area.innerHTML = `
+      <div class="match-container">
+        <div class="match-column" id="matchLeft">
+          ${quiz.pairs.map((p, i) => `<div class="match-item" data-idx="${i}">${p.left}</div>`).join('')}
+        </div>
+        <div class="match-arrow-col">
+          ${quiz.pairs.map(() => '→').join('<br>')}
+        </div>
+        <div class="match-column" id="matchRight">
+          ${shuffledRight.map((p, i) => `<div class="match-slot" data-slot="${i}" data-answer="${quiz.pairs.indexOf(p)}">${p.right}</div>`).join('')}
+        </div>
+        <button class="btn-match-submit" onclick="answerMatch()">확인</button>
+      </div>`;
+    initMatchDrag();
+  }
+
+  else if (quiz.type === 'order') {
+    const shuffled = quiz.items.map((text, i) => ({ text, correctIdx: i }))
+      .sort(() => Math.random() - 0.5);
+    area.innerHTML = `
+      <div class="order-list" id="orderList">
+        ${shuffled.map((item, i) => `<div class="order-item" draggable="true" data-correct="${item.correctIdx}">
+          <div class="order-number">${i + 1}</div>
+          <div class="order-text">${item.text}</div>
+        </div>`).join('')}
+      </div>
+      <button class="btn-order-submit" onclick="answerOrder()">확인</button>`;
+    initOrderDrag();
+  }
+
+  else if (quiz.type === 'dial') {
+    const chars = quiz.charset || 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ';
+    const dialCount = quiz.answer.length;
+    area.innerHTML = `
+      <div class="dial-container" id="dialContainer">
+        ${Array.from({ length: dialCount }, (_, i) => `
+          <div class="dial-col">
+            <button class="dial-arrow" onclick="dialSpin(${i}, -1)">▲</button>
+            <div class="dial-wheel" id="dialWheel${i}" data-idx="${i}" data-pos="0">
+              <div class="dial-indicator"></div>
+              <div class="dial-track" id="dialTrack${i}">
+                ${chars.split('').map((c, ci) => `<div class="dial-char${ci === 0 ? ' active' : ''}">${c}</div>`).join('')}
+              </div>
+            </div>
+            <button class="dial-arrow" onclick="dialSpin(${i}, 1)">▼</button>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn-dial-submit" onclick="answerDial()">확인</button>`;
+    initDialTouch();
+  }
+
   // Reset feedback
   const fb = document.getElementById('quizFeedback');
   fb.className = 'feedback';
@@ -2124,6 +2397,193 @@ function answerFill() {
   input.disabled = true;
   document.getElementById('fillSubmit').disabled = true;
   input.className = `fill-input ${isCorrect ? 'correct' : 'wrong'}`;
+
+  showFeedback(isCorrect,
+    isCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
+    currentQuiz, currentStage);
+}
+
+// ── MATCH PUZZLE ──
+function initMatchDrag() {
+  const items = document.querySelectorAll('#matchLeft .match-item');
+  const slots = document.querySelectorAll('#matchRight .match-slot');
+  let dragItem = null;
+
+  items.forEach(item => {
+    item.draggable = true;
+    item.addEventListener('dragstart', (e) => {
+      dragItem = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      dragItem = null;
+    });
+    item.addEventListener('touchstart', (e) => {
+      dragItem = item;
+      item.classList.add('dragging');
+    });
+  });
+
+  slots.forEach(slot => {
+    slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      if (dragItem) {
+        slot.textContent = dragItem.textContent;
+        slot.dataset.matched = dragItem.dataset.idx;
+        slot.classList.add('filled');
+        dragItem.style.opacity = '0.4';
+        dragItem.draggable = false;
+      }
+    });
+    slot.addEventListener('touchend', (e) => {
+      if (dragItem) {
+        slot.textContent = dragItem.textContent;
+        slot.dataset.matched = dragItem.dataset.idx;
+        slot.classList.add('filled');
+        dragItem.style.opacity = '0.4';
+        dragItem.classList.remove('dragging');
+        dragItem.draggable = false;
+        dragItem = null;
+      }
+    });
+  });
+}
+
+function answerMatch() {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  const slots = document.querySelectorAll('#matchRight .match-slot');
+  let allCorrect = true;
+  let allFilled = true;
+
+  slots.forEach((slot, i) => {
+    if (!slot.dataset.matched) { allFilled = false; return; }
+    const matchedIdx = parseInt(slot.dataset.matched);
+    const answerIdx = parseInt(slot.dataset.answer);
+    if (matchedIdx === answerIdx) {
+      slot.classList.add('matched-correct');
+    } else {
+      slot.classList.add('matched-wrong');
+      allCorrect = false;
+    }
+  });
+
+  if (!allFilled) return;
+
+  showFeedback(allCorrect,
+    allCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
+    currentQuiz, currentStage);
+}
+
+// ── ORDER PUZZLE ──
+function initOrderDrag() {
+  const list = document.getElementById('orderList');
+  let dragEl = null;
+
+  list.querySelectorAll('.order-item').forEach(item => {
+    item.draggable = true;
+    item.addEventListener('dragstart', (e) => {
+      dragEl = item;
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      updateOrderNumbers();
+    });
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (item === dragEl) return;
+      const rect = item.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) {
+        list.insertBefore(dragEl, item);
+      } else {
+        list.insertBefore(dragEl, item.nextSibling);
+      }
+    });
+
+    let touchY = 0;
+    item.addEventListener('touchstart', (e) => {
+      dragEl = item;
+      touchY = e.touches[0].clientY;
+      item.classList.add('dragging');
+    });
+    item.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const curY = e.touches[0].clientY;
+      const items = [...list.querySelectorAll('.order-item')];
+      for (const other of items) {
+        if (other === dragEl) continue;
+        const rect = other.getBoundingClientRect();
+        if (curY > rect.top && curY < rect.bottom) {
+          const mid = rect.top + rect.height / 2;
+          if (curY < mid) list.insertBefore(dragEl, other);
+          else list.insertBefore(dragEl, other.nextSibling);
+          break;
+        }
+      }
+    });
+    item.addEventListener('touchend', () => {
+      item.classList.remove('dragging');
+      updateOrderNumbers();
+    });
+  });
+}
+
+function updateOrderNumbers() {
+  document.querySelectorAll('#orderList .order-item').forEach((item, i) => {
+    item.querySelector('.order-number').textContent = i + 1;
+  });
+}
+
+function answerOrder() {
+  const items = document.querySelectorAll('#orderList .order-item');
+  let allCorrect = true;
+  items.forEach((item, i) => {
+    const correct = parseInt(item.dataset.correct);
+    if (correct !== i) allCorrect = false;
+  });
+
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  showFeedback(allCorrect,
+    allCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
+    currentQuiz, currentStage);
+}
+
+// ── DIAL PUZZLE ──
+let dialPositions = [];
+
+function initDialTouch() {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  dialPositions = new Array(quiz.answer.length).fill(0);
+}
+
+function dialSpin(wheelIdx, direction) {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  const chars = quiz.charset || 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ';
+  const len = chars.length;
+
+  dialPositions[wheelIdx] = (dialPositions[wheelIdx] + direction + len) % len;
+  const pos = dialPositions[wheelIdx];
+
+  const track = document.getElementById(`dialTrack${wheelIdx}`);
+  track.style.transform = `translateY(-${pos * 40}px)`;
+
+  track.querySelectorAll('.dial-char').forEach((ch, i) => {
+    ch.classList.toggle('active', i === pos);
+  });
+}
+
+function answerDial() {
+  const quiz = stages[currentStage].quizzes[currentQuiz];
+  const chars = quiz.charset || 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ';
+
+  const userAnswer = dialPositions.map(pos => chars[pos]).join('');
+  const isCorrect = userAnswer === quiz.answer;
 
   showFeedback(isCorrect,
     isCorrect ? quiz.feedbackCorrect : quiz.feedbackWrong,
